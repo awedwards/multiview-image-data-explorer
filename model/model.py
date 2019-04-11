@@ -2,51 +2,34 @@ from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QHeaderView
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap
 
-import pyqtgraph as pg
-
-import numpy as np
-
+from model.image_model import ImageModel
+from model.segmentation_class_table_model import SegmentationClassTableModel
 class Model(QObject):
 
     def __init__(self):
         super().__init__()
-
-        self.w, self.h, self.c = (631, 721, 3)
-
-        self.image = np.zeros((self.w, self.h, self.c))
-        #self.image = self.convert_numpy_to_QPixmap(np.zeros((self.w, self.h, self.c)))
-        self._segmentation_image = np.zeros((100,100,3))
         
-    image_changed = pyqtSignal(pg.ImageWindow)
-    segmentation_image_changed = pyqtSignal(pg.ImageWindow)
-    
+        self.images = {}
+        self.images[""] = ImageModel()
+        self.seg_models = {}
+        self.seg_models[""] = SegmentationClassTableModel(data=[], header=["Color", "Class"])
+        self.current_id = ""
+            
     @property
-    def image(self):
-        return self.__image
+    def current_id(self):
+        return self.__current_id
     
-    @image.setter
-    def image(self, value):
-        
-        print("image changed , model")
+    @current_id.setter
+    def current_id(self, value):
+        self.__current_id = value
         try:
-            self.__image = pg.image(value)
-            #self.__image = self.convert_numpy_to_QPixmap(value)
-        except AttributeError:
-            self.__image = value
-
-        self.image_changed.emit(self.__image)
-
-    @property
-    def segmentation_image(self):
-        return self._segmentation_image
+            self.current_image_model = self.images[value]
+            self.current_seg_model = self.seg_models[value]
+        except KeyError:
+            pass 
     
-    @segmentation_image.setter
-    def segmentation_image(self, value):
-        self._segmentation_image = value
-        self.segmentation_image_changed.emit(value)
+    def add_image_model(self, key):
+        self.images[key] = ImageModel()
     
-    def convert_numpy_to_QPixmap(self, data):
-
-        height, width, channel = data.shape
-        bytesPerLine = channel * width
-        return QPixmap(QImage(data, width, height, bytesPerLine, QImage.Format_RGB888))
+    def add_seg_model(self, key):
+        self.seg_models[key] = SegmentationClassTableModel(data=[], header=["Color", "Class"])
