@@ -20,7 +20,6 @@ class SegmentationClassTableModel(QAbstractTableModel):
             j = index.column()
             return '{0}'.format(self._data[i][j])
         elif role == QtCore.Qt.BackgroundColorRole:
-            print(self._data)
             if index.column() == 0:
                 return self._color_table[index.row()][1]
         else:
@@ -36,9 +35,13 @@ class SegmentationClassTableModel(QAbstractTableModel):
     def populate_class_table(self, color_table):
 
         self._color_table = color_table
-        self.layoutAboutToBeChanged.emit()
+
+        data = []
         for v in color_table.values():
-            self._data.append(["", v[0]])
+            data.append(["", v[0]])
+
+        self.layoutAboutToBeChanged.emit()
+        self._data = data
         self.layoutChanged.emit()
 
         self.class_table_update.emit(1)

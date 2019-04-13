@@ -59,6 +59,8 @@ class MainView(QMainWindow):
         self._image_manager_controller.change_current_image.connect(self.current_image_changed)
         self._file_table_model.file_table_data_changed.connect(self.file_list_changed)
         
+        self._ui.loadAnalysisFileButton.clicked.connect(self._main_controller.load_analysis_file)
+
         self._current_image_index = -1
 
 

@@ -24,6 +24,7 @@ class fileTableModel(QAbstractTableModel):
     def headerData(self, section, orientation, role=None):
         if role == QtCore.Qt.DisplayRole:
             if orientation == Qt.Horizontal:
+                print(self._data)
                 return self._header[section]
         return QAbstractTableModel.headerData(self, section, orientation, role)
     

@@ -1,14 +1,16 @@
-from PyQt5.QtCore import QObject
-from PyQt5.QtGui import QColor, QBrush, QColorDialog
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QColor, QBrush, QColorDialog, QFileDialog
 import h5py
 import numpy as np
+import pandas as pd
 import scipy.io as sio
+import os
 from matplotlib import pyplot as plt
 
 from skimage.transform import rescale
 DEFAULT_COLORS = [(255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255)]
 
-class ImageDisplayController(QObject):
+class ImageDisplayController(QWidget):
     
     def __init__(self, main_model):
         super().__init__()
@@ -105,3 +107,12 @@ class ImageDisplayController(QObject):
         image[idx[0], idx[1], :] = (r,g,b)
 
         return image
+    
+    def load_analysis_file(self):
+        
+        FileDialog = QFileDialog()
+        analysis_file_location = FileDialog.getOpenFileName(self, "Select object analysis data")
+
+        if os.path.isfile(analysis_file_location[0]):
+            data = pd.read_csv(analysis_file_location[0])
+            
