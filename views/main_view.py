@@ -4,6 +4,7 @@ from PyQt5.QtGui import QPixmap, QAbstractItemView
 
 from views.main_view_ui import Ui_MainWindow
 from views.image_manager_view import ImageManagerView
+from views.filter_manager_view import FilterManagerView
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -17,7 +18,7 @@ import numpy as np
 import inspect
 
 class MainView(QMainWindow):
-    def __init__(self, model, file_table_model, main_controller, image_manager_controller):
+    def __init__(self, model, file_table_model, filter_table_model, main_controller, image_manager_controller):
         
         super().__init__()
 
@@ -25,6 +26,7 @@ class MainView(QMainWindow):
         self._model = model.current_image_model
         self._file_table_model = file_table_model
         self._seg_class_model = model.current_seg_model
+        self._filter_table_model = filter_table_model
 
         self._main_controller = main_controller
         self._image_manager_controller = image_manager_controller
@@ -61,6 +63,8 @@ class MainView(QMainWindow):
         
         self._ui.loadAnalysisFileButton.clicked.connect(self._main_controller.load_analysis_file)
 
+        self._ui.filterButton.clicked.connect(self.launchFilterManager)
+
         self._current_image_index = -1
 
 
@@ -68,6 +72,10 @@ class MainView(QMainWindow):
  
         self._image_manager_view = ImageManagerView(self._file_table_model, self._image_manager_controller)
         self._image_manager_view.show()
+
+    def launchFilterManager(self):
+        self._filter_manager_view = FilterManagerView(self._filter_table_model, self._main_controller)
+        self._filter_manager_view.show()
 
     @pyqtSlot(list)
     def file_list_changed(self, value):

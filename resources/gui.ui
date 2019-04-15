@@ -20,8 +20,8 @@
    <widget class="QComboBox" name="imageFileNavigatorView">
     <property name="geometry">
      <rect>
-      <x>750</x>
-      <y>10</y>
+      <x>410</x>
+      <y>660</y>
       <width>181</width>
       <height>22</height>
      </rect>
@@ -66,30 +66,17 @@ background-color: rgb(120, 201, 172);</string>
      <string>No mask</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="filterListView">
-    <property name="geometry">
-     <rect>
-      <x>750</x>
-      <y>100</y>
-      <width>256</width>
-      <height>192</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 255, 255);</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="loadAnalysisFileButton">
     <property name="geometry">
      <rect>
-      <x>750</x>
-      <y>70</y>
+      <x>410</x>
+      <y>720</y>
       <width>111</width>
       <height>23</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(120,201,172);</string>
+     <string notr="true">background-color: rgb(252, 205, 64);</string>
     </property>
     <property name="text">
      <string>Load analysis file</string>
@@ -98,8 +85,8 @@ background-color: rgb(120, 201, 172);</string>
    <widget class="QLineEdit" name="analysisFileDisplay">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>70</y>
+      <x>410</x>
+      <y>750</y>
       <width>131</width>
       <height>20</height>
      </rect>
@@ -107,45 +94,16 @@ background-color: rgb(120, 201, 172);</string>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
-   </widget>
-   <widget class="QPushButton" name="addFilterButton">
-    <property name="geometry">
-     <rect>
-      <x>750</x>
-      <y>300</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(252, 205, 64);</string>
-    </property>
     <property name="text">
-     <string>Add filter</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="removeFilterButton">
-    <property name="geometry">
-     <rect>
-      <x>930</x>
-      <y>300</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(230, 165, 187);</string>
-    </property>
-    <property name="text">
-     <string>Remove</string>
+     <string>No analysis file</string>
     </property>
    </widget>
    <widget class="QPushButton" name="filterButton">
     <property name="geometry">
      <rect>
-      <x>750</x>
-      <y>330</y>
-      <width>251</width>
+      <x>840</x>
+      <y>800</y>
+      <width>181</width>
       <height>31</height>
      </rect>
     </property>
@@ -153,7 +111,7 @@ background-color: rgb(120, 201, 172);</string>
      <string notr="true">background-color: rgb(172, 199, 241);</string>
     </property>
     <property name="text">
-     <string>Filter</string>
+     <string>Configure filters</string>
     </property>
    </widget>
    <widget class="QTableView" name="segmentationClassList">
@@ -174,9 +132,25 @@ background-color: rgb(120, 201, 172);</string>
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>731</width>
+      <width>1011</width>
       <height>641</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+   </widget>
+   <widget class="QListView" name="listView">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>660</y>
+      <width>321</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
    </widget>
   </widget>
