@@ -133,5 +133,5 @@ class MainView(QMainWindow):
 
         self._main_controller.load_analysis_file()
         if self._model.has_segmentation_image:
-            self._file_table_model
+            self._filter_controller.index_objects()
 
