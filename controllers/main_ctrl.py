@@ -114,5 +114,4 @@ class ImageDisplayController(QWidget):
         analysis_file_location = FileDialog.getOpenFileName(self, "Select object analysis data")
 
         if os.path.isfile(analysis_file_location[0]):
-            data = pd.read_csv(analysis_file_location[0])
-            
+            self._main_model.object_data = pd.read_csv(analysis_file_location[0])
