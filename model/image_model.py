@@ -17,8 +17,10 @@ class ImageModel(QObject):
         #self.image = sio.imread(os.path.join(imagedir, os.listdir(imagedir)[np.random.randint(3)-1]))
         self.image = np.zeros((500,500))
         self.has_segmentation_image = False
+        
         self.segmentation_data = np.zeros(self.__image.shape)
-        self.segmentation_image = self.segmentation_data
+        self.full_segmentation_image = self.segmentation_data.copy()
+        self.segmentation_image = self.segmentation_data.copy()
         self.segmentation_label = "None"
         self.segmentation_classes = []
         self.mask_on = False

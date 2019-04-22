@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QInputDialog
 from PyQt5.QtGui import QColor, QBrush, QColorDialog, QFileDialog
 import h5py
 import numpy as np
@@ -28,7 +28,8 @@ class ImageDisplayController(QWidget):
                 if "data" in k:
                     key=k
                     break
-            return np.squeeze(imagefile[key])
+            return imagefile[key]
+            #return np.squeeze(imagefile[key])
         except IOError:
             print("Can't read image")
     
@@ -38,13 +39,14 @@ class ImageDisplayController(QWidget):
 
         self._current_image_model.image = self.image_rescale( self.read_image(data_row[0]), float(data_row[3]))
         
-        if data_row[1]:
+        if self.str2bool(data_row[1]):
 
             self._current_image_model.has_segmentation_image = True
 
             color_table = dict()
-            self._current_image_model.segmentation_data = self.read_image(data_row[2])
-            self.classes = np.unique(self._current_image_model.segmentation_data).astype(np.uint8)
+            self._current_image_model.full_segmentation_data = self.read_image(data_row[2])
+            self._current_image_model.segmentation_data = np.squeeze(self._current_image_model.full_segmentation_data).copy()
+            self.classes = np.unique(self._current_image_model.segmentation_data)
             
             for c,i in enumerate(self.classes):
                 color_table[i] = ["Class " + str(c), QBrush(QColor(*DEFAULT_COLORS[i]))]
@@ -81,7 +83,8 @@ class ImageDisplayController(QWidget):
 
     def image_rescale(self, image, scale):
         '''rescale image'''
-        
+        if len(image.shape) > 3:
+            image = image[0, 0, :, :, :]
         return rescale(image, scale, anti_aliasing=False, preserve_range=True)
     
     def change_class_color(self, row):
@@ -90,11 +93,6 @@ class ImageDisplayController(QWidget):
         if color.isValid():
             self._seg_class_model.change_color(row, QBrush(color))
             self._current_image_model.segmentation_image = self.create_seg_image(self._current_image_model.segmentation_data)
-    
-    def change_class_label(self, row):
-
-        # ADD LATER
-        return
 
     def set_color_in_seg_image(self, image, k):
 
@@ -115,3 +113,7 @@ class ImageDisplayController(QWidget):
 
         if os.path.isfile(analysis_file_location[0]):
             self._main_model.object_data = pd.read_csv(analysis_file_location[0])
+
+    def str2bool(self, s):
+
+        return str(s).lower() in ("yes", "true", "t", "1")

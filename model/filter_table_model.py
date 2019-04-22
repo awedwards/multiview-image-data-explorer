@@ -9,7 +9,10 @@ class filterTableModel(QAbstractTableModel):
         self._data = data
         self._header = header
 
-    filter_table_data_changed = pyqtSignal(list)
+        self.classList = []
+        self.functionList = ["INCLUDE", "NOT INCLUDE", "<", ">", "="]
+
+    class_list_changed = pyqtSignal(list)
     
     def data(self, index, role=QtCore.Qt.DisplayRole):
 

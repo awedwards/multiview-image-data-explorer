@@ -18,6 +18,10 @@ class SegmentationClassTableModel(QAbstractTableModel):
         if role == QtCore.Qt.DisplayRole:
             i = index.row()
             j = index.column()
+
+            if index.column() == 1:
+                self._data[i][1] = self._color_table[i][0]
+
             return '{0}'.format(self._data[i][j])
         elif role == QtCore.Qt.BackgroundColorRole:
             if index.column() == 0:
@@ -25,6 +29,11 @@ class SegmentationClassTableModel(QAbstractTableModel):
         else:
             return QtCore.QVariant()
 
+    def flags(self, index):
+
+        if not index.isValid():
+            return Qt.ItemIsEnabled
+        return Qt.ItemFlags(QAbstractTableModel.flags(self, index) | Qt.ItemIsEditable)
 
     def headerData(self, section, orientation, role=None):
         if role == QtCore.Qt.DisplayRole:
@@ -58,3 +67,19 @@ class SegmentationClassTableModel(QAbstractTableModel):
     def columnCount(self, parent=None):
         return 2
 
+    def setData(self, index, value, role=Qt.EditRole):
+        """ Adjust the data (set it to <value>) depending on the given 
+            index and role. 
+        """
+        if role != Qt.EditRole:
+            return False
+
+        if index.isValid() and (index.column() == 1):
+            
+            self.layoutAboutToBeChanged.emit()
+            self._color_table[index.row()][0] = value    
+            self.layoutChanged.emit()
+
+            return True
+
+        return False

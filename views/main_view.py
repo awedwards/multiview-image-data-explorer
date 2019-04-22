@@ -48,6 +48,7 @@ class MainView(QMainWindow):
         self._ui.segmentationClassList.verticalHeader().setVisible(False)
         self._ui.segmentationClassList.horizontalHeader().setStretchLastSection(True)
         self._ui.segmentationClassList.horizontalHeader().setVisible(False)
+        self._ui.segmentationClassList
         self._ui.segmentationClassList.doubleClicked.connect(self.seg_class_data_change_request)
 
         self._ui.graphicsView.ui.histogram.hide()
@@ -125,9 +126,6 @@ class MainView(QMainWindow):
 
         if idx.column() == 0:
             self._main_controller.change_class_color(idx.row())
-        
-        if idx.column() == 1:
-            self._main_controller.change_class_label(idx.row())
     
     def loadAnalysisFileClicked(self):
 

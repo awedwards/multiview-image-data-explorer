@@ -1,7 +1,8 @@
 class SegmentationObject():
 
-    def __init__(self, cx, cy, boundingbox):
-
+    def __init__(self, i, cx, cy, boundingbox):
+        
+        self.id = i
         self.cx = cx
         self.cy = cy
         self.bb = boundingbox

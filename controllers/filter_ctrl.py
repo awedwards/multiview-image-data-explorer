@@ -23,12 +23,12 @@ class FilterController(QWidget):
 
         df = self._main_model.object_data
 
-        nobjects = len(df)
+        nobjects = len(df.index)
         
         index = SegmentationIndex()
 
-        boxes = np.zeros((len(df),4))
-        centers = np.zeros((len(df), 2))
+        boxes = np.zeros((nobjects,4))
+        centers = np.zeros((nobjects, 2))
         
         boxes[:,0] = df['Bounding Box Minimum_0']
         boxes[:,1] = df['Bounding Box Minimum_1']
@@ -39,7 +39,7 @@ class FilterController(QWidget):
         centers[:,1] = df['Center of the object_1']
         centers = centers.astype(np.uint16)
 
-        for i in np.arange(nobjects):
+        for i in df.index:
             
             x1 = boxes[i,0]
             x2 = boxes[i,2]
@@ -49,19 +49,15 @@ class FilterController(QWidget):
             cx = centers[i,0]
             cy = centers[i,1]
 
-            obj = SegmentationObject(tuple(centers[i,:]), list(boxes[i,:]))
+            obj = SegmentationObject(i, cx, cy, list(boxes[i,:]))
 
-            sub = self._image_model.segmentation_data[y1:y2+1,x1:x2+1]
+            sub = self._image_model.full_segmentation_data[y1:y2+1,x1:x2+1]
 
             labels = measure.label(sub, background=0)
-
-            if sub[cy-y1, cx-x1] > 0:
-
-                lbl = labels[cy-y1, cx-x1]
-                idx = np.where(labels == lbl)
-
-                obj.index = np.vstack([idx[0], idx[1]])
-            
+            lbl = labels[cy-y1,cx-x1]
+            idx = np.where(labels == lbl)
+            obj.index = np.vstack([idx[0]+y1, idx[1]+x1])
+        
             index.add_object(obj)
         
         self._main_model.segmentation_index = index
