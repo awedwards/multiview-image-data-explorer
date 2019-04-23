@@ -1,3 +1,9 @@
+"""
+@author: Austin Edwards
+
+Controller for Image File Manager
+
+"""
 import os, sys
 
 from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QFileDialog, QListWidgetItem, QHeaderView, QInputDialog
@@ -13,10 +19,11 @@ class ImageManagerController(QWidget):
     change_current_image = pyqtSignal(int)
 
     def request_image_files(self):
-        ''' User dialog to add a new image to the ImageManager table '''
+        ''' User dialog to add new images to the ImageManager table '''
 
         items = ["", "False", "", 1]
         item_check = False
+        # HDF5 Only for now
         fname = self.createH5FileDialog()[0]
         
         if len(fname) > 0:
@@ -24,7 +31,7 @@ class ImageManagerController(QWidget):
         else:
             # User cancelled dialog
             return
-
+        # If file exists, ask for segmentation file and scale
         if os.path.isfile(fname):
 
             item_check = True
@@ -40,7 +47,7 @@ class ImageManagerController(QWidget):
                     items[2] = maskfname
                 else: item_check = False
 
-        items[3] = self.getScale()
+            items[3] = self.getScale()
 
         if item_check:
             self._model.add_row(items)
@@ -50,11 +57,13 @@ class ImageManagerController(QWidget):
         FileDialog = QFileDialog()
         return FileDialog.getOpenFileName(self, message, defaultDir, filetype)
 
-    def file_manager_window_close(self):        
+    def file_manager_window_close(self):
+        """ Lets the main view know that the file manager window is closed and updates the current image """
         self.change_current_image.emit(1)
     
     def getScale(self):
-        i, okPressed = QInputDialog.getDouble(self, "Enter image scale","Scale:", 1, 0, 1, 2)
+        """ Asks user for rescale factor """
+        i, okPressed = QInputDialog.getDouble(self, "Enter factor for image rescale (1 if no change ","Scale:", 1, 0, 1, 2)
         if okPressed:
             return i
         else: return 1

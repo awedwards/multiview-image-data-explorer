@@ -1,3 +1,11 @@
+"""
+    @author: Austin Edwards
+
+    TableModel for storing filepaths and scaling information for
+    input image data
+
+"""
+
 import PyQt5.QtCore as QtCore
 from PyQt5.QtCore import Qt, QAbstractTableModel, pyqtSignal
 
@@ -28,6 +36,8 @@ class fileTableModel(QAbstractTableModel):
         return QAbstractTableModel.headerData(self, section, orientation, role)
     
     def add_row(self, value):
+        
+        "Adds a data row to the data table"
 
         self.layoutAboutToBeChanged.emit()
         self._data.append(value)
@@ -37,6 +47,9 @@ class fileTableModel(QAbstractTableModel):
         self.file_table_data_changed.emit([-1])
     
     def delete_row(self, indexes):
+        
+        "Deletes data row from data table and selected indexes"
+
         rows = sorted(set(index.row() for index in indexes), reverse=True)
         
         self.layoutAboutToBeChanged.emit()

@@ -1,3 +1,10 @@
+"""
+@author: Austin Edwards
+
+Controller for the object data and data filters.
+
+"""
+
 from PyQt5.QtWidgets import QWidget
 import h5py
 import numpy as np
@@ -20,7 +27,9 @@ class FilterController(QWidget):
         self._main_model = main_model
 
     def index_objects(self):
-
+        
+        """ Gets pixel locations all of the objects in the segmentation image """
+        
         df = self._main_model.object_data
 
         nobjects = len(df.index)
@@ -51,8 +60,11 @@ class FilterController(QWidget):
 
             obj = SegmentationObject(i, cx, cy, list(boxes[i,:]))
 
+            # Speed up connected component search by just using bounding box information
             sub = self._image_model.full_segmentation_data[y1:y2+1,x1:x2+1]
 
+            # Uses connected components algorithm to find all of the pixels
+            # associated with each object
             labels = measure.label(sub, background=0)
             lbl = labels[cy-y1,cx-x1]
             idx = np.where(labels == lbl)

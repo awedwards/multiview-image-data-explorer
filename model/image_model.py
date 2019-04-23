@@ -1,3 +1,10 @@
+"""
+    @author: Austin Edwards
+
+    Data model for storing image and segmentation data
+
+"""
+
 from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QHeaderView
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap
@@ -13,8 +20,6 @@ class ImageModel(QObject):
     def __init__(self):
         super().__init__()
         
-        #imagedir = "E:\Data\Austin\scripts\MultiviewImageExplorer\images"
-        #self.image = sio.imread(os.path.join(imagedir, os.listdir(imagedir)[np.random.randint(3)-1]))
         self.image = np.zeros((500,500))
         self.has_segmentation_image = False
         

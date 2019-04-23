@@ -1,3 +1,10 @@
+"""
+@author: Austin Edwards
+
+Model containing high level segmentation data and quantitative data
+loaded in from analysis file
+"""
+
 from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QHeaderView
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap

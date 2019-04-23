@@ -9,7 +9,7 @@ class filterTableModel(QAbstractTableModel):
         self._data = data
         self._header = header
 
-        self.classList = []
+        self.class_list = []
         self.functionList = ["INCLUDE", "NOT INCLUDE", "<", ">", "="]
 
     class_list_changed = pyqtSignal(list)
@@ -37,3 +37,7 @@ class filterTableModel(QAbstractTableModel):
             return len(self._data[0])
         except IndexError:
             return 0
+
+    def class_list_changed(self, value):
+        
+        self.class_list = value
