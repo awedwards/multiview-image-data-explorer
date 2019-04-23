@@ -37,7 +37,4 @@ class filterTableModel(QAbstractTableModel):
             return len(self._data[0])
         except IndexError:
             return 0
-
-    def class_list_changed(self, value):
-        
-        self.class_list = value
+            

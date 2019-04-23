@@ -62,7 +62,7 @@ class SegmentationClassTableModel(QAbstractTableModel):
         self._data = data
         self.layoutChanged.emit()
 
-        self.class_table_update.emit([row[0] for row in color_table.values])
+        self.class_table_update.emit([row[0] for row in color_table.values()])
 
     def change_color(self, row, color):
         """ Changes a single color and notifies view """
@@ -88,7 +88,7 @@ class SegmentationClassTableModel(QAbstractTableModel):
             self.layoutAboutToBeChanged.emit()
             self._color_table[index.row()][0] = value    
             self.layoutChanged.emit()
-            self.class_table_update.emit([row[0] for row in self._color_table.values])
+            self.class_table_update.emit([row[0] for row in self._color_table.values()])
             return True
 
         return False

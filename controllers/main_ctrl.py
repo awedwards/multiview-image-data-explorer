@@ -140,7 +140,21 @@ class ImageDisplayController(QWidget):
         if os.path.isfile(analysis_file_location[0]):
             self._main_model.object_data = pd.read_csv(analysis_file_location[0])
         
-        self.update_models_from_an
+        self.update_models_from_analysis_file()
+
+    def update_models_from_analysis_file(self):
+
+        """ Updates the segmentation class model with the class labels provided in analysis output file """
+
+        class_labels = self._main_model.object_data['Predicted Class'].unique()
+        for c in class_labels:
+            for i in self._main_model.object_data.index:
+                row = self._main_model.object_data.iloc[i]
+                if row['Predicted Class'] == c:
+                    cx = row['Center of the object_1']
+                    cy = row['Center of the object_0']
+                    self._seg_class_model._color_table[ self._current_image_model.full_segmentation_data[cx, cy] ][0] = c
+                    break
 
     def str2bool(self, s):
 

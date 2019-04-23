@@ -6,7 +6,7 @@ dispay the image and quantitative data.
 
 """
 
-from PyQt5.QtWidgets import QMainWindow, QGraphicsScene, QAbstractItemView
+from PyQt5.QtWidgets import QMainWindow, QGraphicsScene, QAbstractItemView, QErrorMessage, QMessageBox
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap
 
@@ -71,7 +71,7 @@ class MainView(QMainWindow):
         self._ui.imageFileNavigatorView.currentIndexChanged.connect(self.current_image_changed)
         self._image_manager_controller.change_current_image.connect(self.current_image_changed)
         self._file_table_model.file_table_data_changed.connect(self.file_list_changed)
-        self._filter_table_model.class_list_changed.connect(self._seg_class_model.class_table_update)
+        #self._filter_table_model.class_list_changed.connect(self._seg_class_model.class_table_update)
         self._ui.loadAnalysisFileButton.clicked.connect(self.loadAnalysisFileClicked)
         self._ui.filterButton.clicked.connect(self.launchFilterManager)
 
@@ -167,7 +167,13 @@ class MainView(QMainWindow):
             main controller to load it. Then tells the filter controller to index all of the
             objects in the image.
         """
-        self._main_controller.load_analysis_file()
-        if self._model.has_segmentation_image:
-            self._filter_controller.index_objects()
+        if len(self._file_table_model._filelist) == 0:
+            no_image_loaded_error_msg = QMessageBox(self)
+            no_image_loaded_error_msg.setText("Can't load analysis file")
+            no_image_loaded_error_msg.setDetailedText("Please load image file before loading analysis file.")
+            no_image_loaded_error_msg.show()
+        else:
+            self._main_controller.load_analysis_file()
+            if self._model.has_segmentation_image:
+                self._filter_controller.index_objects()
 
