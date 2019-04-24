@@ -6,7 +6,7 @@ Controller for Image File Manager
 """
 import os, sys
 
-from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QFileDialog, QListWidgetItem, QHeaderView, QInputDialog
+from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QFileDialog, QListWidgetItem, QHeaderView, QInputDialog, QMessageBox
 from PyQt5.QtCore import pyqtSignal
 
 class ImageManagerController(QWidget):
@@ -63,7 +63,7 @@ class ImageManagerController(QWidget):
     
     def getScale(self):
         """ Asks user for rescale factor """
-        i, okPressed = QInputDialog.getDouble(self, "Enter factor for image rescale (1 if no change ","Scale:", 1, 0, 1, 2)
+        i, okPressed = QInputDialog.getDouble(self, "Enter factor for image rescale (1 if no change)","Scale:", 1, 0.01, 1, 2)
         if okPressed:
             return i
         else: return 1

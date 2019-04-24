@@ -135,12 +135,15 @@ class ImageDisplayController(QWidget):
         """ Loads analysis file and calls updates to data models """
 
         FileDialog = QFileDialog()
-        analysis_file_location = FileDialog.getOpenFileName(self, "Select object analysis data")
+        analysis_file_location = FileDialog.getOpenFileName(self, "Select object analysis data", "D:\\Austin\\", "CSV or Text Files (*csv *txt)")
 
         if os.path.isfile(analysis_file_location[0]):
             self._main_model.object_data = pd.read_csv(analysis_file_location[0])
-        
-        self.update_models_from_analysis_file()
+            self.update_models_from_analysis_file()
+            return True
+
+        # if user cancelled loading dialog, skip indexing objects in main_view
+        return False
 
     def update_models_from_analysis_file(self):
 
@@ -153,7 +156,7 @@ class ImageDisplayController(QWidget):
                 if row['Predicted Class'] == c:
                     cx = row['Center of the object_1']
                     cy = row['Center of the object_0']
-                    self._seg_class_model._color_table[ self._current_image_model.full_segmentation_data[cx, cy] ][0] = c
+                    self._seg_class_model.set_label_in_color_table( self._current_image_model.full_segmentation_data[cx, cy], c)
                     break
 
     def str2bool(self, s):

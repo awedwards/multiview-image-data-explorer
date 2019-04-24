@@ -18,7 +18,7 @@ class SegmentationClassTableModel(QAbstractTableModel):
         self._color_table = dict()
         self._class_loc = dict()
 
-    class_table_update = pyqtSignal(int)
+    class_table_update = pyqtSignal(list)
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         
@@ -62,7 +62,7 @@ class SegmentationClassTableModel(QAbstractTableModel):
         self._data = data
         self.layoutChanged.emit()
 
-        self.class_table_update.emit([row[0] for row in color_table.values()])
+        self.class_table_update.emit([row[0] for row in self._color_table.values()])
 
     def change_color(self, row, color):
         """ Changes a single color and notifies view """
@@ -92,3 +92,8 @@ class SegmentationClassTableModel(QAbstractTableModel):
             return True
 
         return False
+    
+    def set_label_in_color_table(self, index, label):
+        self._color_table[ index ][0] = label
+        self.class_table_update.emit([row[0] for row in self._color_table.values()])
+

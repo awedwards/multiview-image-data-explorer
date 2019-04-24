@@ -8,11 +8,10 @@ class filterTableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self._data = data
         self._header = header
+        self.non_class_filterable_object_list = ["Size in pixels"]
+        self.function_list = ["INCLUDE", "NOT INCLUDE", "<", ">", "="]
 
-        self.class_list = []
-        self.functionList = ["INCLUDE", "NOT INCLUDE", "<", ">", "="]
-
-    class_list_changed = pyqtSignal(list)
+    fliter_object_list_changed_signal = pyqtSignal(list)
     
     def data(self, index, role=QtCore.Qt.DisplayRole):
 
@@ -37,4 +36,13 @@ class filterTableModel(QAbstractTableModel):
             return len(self._data[0])
         except IndexError:
             return 0
-            
+
+    def class_list_changed(self, value):
+        
+        self.filter_object_list = []
+
+        for item in self.non_class_filterable_object_list:
+            self.filter_object_list.append(item)
+        for v in value:
+            self.filter_object_list.append(v)
+        self.fliter_object_list_changed_signal.emit(self.filter_object_list)

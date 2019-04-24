@@ -6,7 +6,7 @@ dispay the image and quantitative data.
 
 """
 
-from PyQt5.QtWidgets import QMainWindow, QGraphicsScene, QAbstractItemView, QErrorMessage, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QGraphicsScene, QAbstractItemView, QMessageBox
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap
 
@@ -71,7 +71,7 @@ class MainView(QMainWindow):
         self._ui.imageFileNavigatorView.currentIndexChanged.connect(self.current_image_changed)
         self._image_manager_controller.change_current_image.connect(self.current_image_changed)
         self._file_table_model.file_table_data_changed.connect(self.file_list_changed)
-        #self._filter_table_model.class_list_changed.connect(self._seg_class_model.class_table_update)
+        self._seg_class_model.class_table_update.connect(self._filter_table_model.class_list_changed)
         self._ui.loadAnalysisFileButton.clicked.connect(self.loadAnalysisFileClicked)
         self._ui.filterButton.clicked.connect(self.launchFilterManager)
 
@@ -91,8 +91,9 @@ class MainView(QMainWindow):
         """
             Launches FilterManagerView GUI when the "Manage Filters" button is pressed
         """
-        self._filter_manager_view = FilterManagerView(self._filter_table_model, self._main_controller, self._filter_controller)
-        self._filter_manager_view.show()
+        if self.all_models.object_data is not None:
+            self._filter_manager_view = FilterManagerView(self._filter_table_model, self._main_controller, self._filter_controller)
+            self._filter_manager_view.show()
 
     @pyqtSlot(list)
     def file_list_changed(self, value):
@@ -124,7 +125,6 @@ class MainView(QMainWindow):
             self._main_controller.update_models_from_file_table(self._file_table_model._data[self._current_image_index])
             self._model.image_scale = float(self._file_table_model._data[self._current_image_index][3])
             self._ui.segmentationMaskFileDisplay.setText(self._model.segmentation_label)
-            #self._seg_class_model = self.all_models.current_seg_model
         
     @pyqtSlot(int)
     def on_image_change(self, value):
@@ -173,7 +173,6 @@ class MainView(QMainWindow):
             no_image_loaded_error_msg.setDetailedText("Please load image file before loading analysis file.")
             no_image_loaded_error_msg.show()
         else:
-            self._main_controller.load_analysis_file()
-            if self._model.has_segmentation_image:
+            tf = self._main_controller.load_analysis_file()
+            if (self._model.has_segmentation_image) and tf:
                 self._filter_controller.index_objects()
-

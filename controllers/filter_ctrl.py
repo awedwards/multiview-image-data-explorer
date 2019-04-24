@@ -18,9 +18,12 @@ from skimage.transform import rescale
 from skimage import measure
 from model.segmentation_index import SegmentationObject, SegmentationIndex
 
+import operator
+
 class FilterController(QWidget):
 
     def __init__(self, main_model, filter_table_model, image_model):
+        super().__init__()
 
         self._filter_table_model = filter_table_model
         self._image_model = image_model
@@ -73,3 +76,31 @@ class FilterController(QWidget):
             index.add_object(obj)
         
         self._main_model.segmentation_index = index
+    
+    def get_filter_result_count(self, args):
+
+        result = self.query(args)
+        
+        if result is not None:
+            return len(result)
+
+        return 0
+
+    def query(self, args):
+
+        c, f, v = args
+
+        df = self._main_model.object_data
+        if c == "Size in pixels":
+            if f == "<":
+                return df[operator.le(df[c], float(v))]
+            elif f == ">":
+                return df[operator.gr(df[c], float(v))]
+            elif f == "=":
+                return df[operator.eq(df[c], float(v))]
+        else:
+
+            if (f == "INCLUDE") or (f == "="):
+                return df[df['Predicted Class']==c]
+            elif f == "NOT INCLUDE":
+                return df[df['Predicted Class']!=c]
