@@ -15,7 +15,7 @@ import os
 from matplotlib import pyplot as plt
 
 from skimage.transform import rescale
-DEFAULT_COLORS = [(255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255)]
+DEFAULT_COLORS = [(0,0,0), (0,255,149), (230,0,103), (252,205,0), (0,116,241), (255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255)]
 
 class ImageDisplayController(QWidget):
     
@@ -140,10 +140,10 @@ class ImageDisplayController(QWidget):
         if os.path.isfile(analysis_file_location[0]):
             self._main_model.object_data = pd.read_csv(analysis_file_location[0])
             self.update_models_from_analysis_file()
-            return True
+            return (True, os.path.split(analysis_file_location[0])[-1])
 
         # if user cancelled loading dialog, skip indexing objects in main_view
-        return False
+        return (False, -1)
 
     def update_models_from_analysis_file(self):
 

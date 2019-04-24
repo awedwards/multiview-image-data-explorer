@@ -5,7 +5,7 @@ View window for creating new data filters.
 
 """
 
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QTableWidget, QHeaderView
 from PyQt5.QtCore import pyqtSlot
 from views.filter_manager_view_ui import Ui_FilterManagerMainWindow
 
@@ -21,6 +21,11 @@ class FilterManagerView(QMainWindow):
         self._ui = Ui_FilterManagerMainWindow()
         self._ui.setupUi(self)
 
+        self.current_query = None
+        self._ui.objectClassList.currentTextChanged.connect(self.get_selected_values)
+        self._ui.filterLogicList.currentTextChanged.connect(self.get_selected_values)
+        self._ui.filterValueInput.textEdited.connect(self.get_selected_values)
+
         # These should only need to be triggered when a new view is created.
         # Don't need to update them if things change while window is closed.
 
@@ -30,11 +35,18 @@ class FilterManagerView(QMainWindow):
         for v in self._filter_model.function_list:
             self._ui.filterLogicList.addItem(v)
         
-        self._ui.checkLogic.clicked.connect(self.get_selected_values)
-        
-        self.current_query = ["", "", ""]
+        self._ui.addFilterButton.clicked.connect(self.add_current_query)
+        self._ui.removeFilterButton.clicked.connect(self.remove_filter)
 
-    def closeEvent(self, event):        
+        self._ui.FilterManagerTableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self._ui.FilterManagerTableView.setSelectionBehavior(QTableWidget.SelectRows)
+        self._ui.FilterManagerTableView.setModel(self._filter_model)
+
+
+
+    def closeEvent(self, event):
+        self._filter_controller.filter_manager_window_close()
+        self._filter_model.OR = self._ui.ORRadioButton.isChecked()   
         event.accept()
     
     def get_selected_values(self):
@@ -44,6 +56,13 @@ class FilterManagerView(QMainWindow):
         value = str(self._ui.filterValueInput.text())
         self.current_query = [obj_class, logic, value]
         count = self._filter_controller.get_filter_result_count(self.current_query)
+        self._ui.checkResultTextBox.setText(str(count))
+    
+    def add_current_query(self):
 
-        self._ui.checkResultTextBox.setText(" ".join(self.current_query) + ", count: " + str(count))
+        if self.current_query is not None:
+            self._filter_model.add_row(self.current_query)
+    
+    def remove_filter(self):
         
+        self._filter_model.delete_row(self._ui.FilterManagerTableView.selectedIndexes())

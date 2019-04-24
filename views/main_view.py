@@ -173,6 +173,7 @@ class MainView(QMainWindow):
             no_image_loaded_error_msg.setDetailedText("Please load image file before loading analysis file.")
             no_image_loaded_error_msg.show()
         else:
-            tf = self._main_controller.load_analysis_file()
+            [tf, filename] = self._main_controller.load_analysis_file()
             if (self._model.has_segmentation_image) and tf:
                 self._filter_controller.index_objects()
+                self._ui.analysisFileDisplay.setText(filename)

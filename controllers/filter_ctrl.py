@@ -6,6 +6,7 @@ Controller for the object data and data filters.
 """
 
 from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import pyqtSignal
 import h5py
 import numpy as np
 import pandas as pd
@@ -28,6 +29,8 @@ class FilterController(QWidget):
         self._filter_table_model = filter_table_model
         self._image_model = image_model
         self._main_model = main_model
+
+    filters_changed = pyqtSignal(int)
 
     def index_objects(self):
         
@@ -80,7 +83,7 @@ class FilterController(QWidget):
     def get_filter_result_count(self, args):
 
         result = self.query(args)
-        
+
         if result is not None:
             return len(result)
 
@@ -89,18 +92,35 @@ class FilterController(QWidget):
     def query(self, args):
 
         c, f, v = args
-
+        
         df = self._main_model.object_data
-        if c == "Size in pixels":
-            if f == "<":
-                return df[operator.le(df[c], float(v))]
-            elif f == ">":
-                return df[operator.gr(df[c], float(v))]
-            elif f == "=":
-                return df[operator.eq(df[c], float(v))]
-        else:
+        
+        if (c == "Size in pixels"):
+            try:
+                v = float(v)
+            except ValueError:
+                return None
 
+            if f == "<":
+                return df[operator.lt(df[c], v)]
+            elif f == ">":
+                return df[operator.gt(df[c], v)]
+            elif f == "<=":
+                return df[operator.le(df[c], v)]
+            elif f == ">=":
+                return df[operator.ge(df[c], v)]
+            elif f == "=":
+                return df[operator.eq(df[c], v)]
+        else:
+            
             if (f == "INCLUDE") or (f == "="):
                 return df[df['Predicted Class']==c]
             elif f == "NOT INCLUDE":
                 return df[df['Predicted Class']!=c]
+        
+        return None
+    
+    def filter_manager_window_close(self):
+        
+        """ Lets the main view know that the filter manager window is closed """
+        self.filters_changed.emit(1)
