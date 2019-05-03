@@ -44,7 +44,7 @@ class fileTableModel(QAbstractTableModel):
         self._filelist.append(value[0])
         self.layoutChanged.emit()
 
-        self.file_table_data_changed.emit([-1])
+        #self.file_table_data_changed.emit([-1])
     
     def delete_row(self, indexes):
         
@@ -58,7 +58,7 @@ class fileTableModel(QAbstractTableModel):
             del self._filelist[row]
         self.layoutChanged.emit()
         
-        self.file_table_data_changed.emit(rows)
+        #self.file_table_data_changed.emit(rows)
 
     def rowCount(self, parent=None):
         return len(self._data)

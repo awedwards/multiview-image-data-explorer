@@ -12,13 +12,14 @@ class SegmentationObject():
         index of the object
     """
 
-    def __init__(self, i, cx, cy, boundingbox):
+    def __init__(self, i, cx, cy, boundingbox, k):
         
         self.id = i
         self.cx = cx
         self.cy = cy
         self.bb = boundingbox
         self.index = None
+        self._class = k
 
 class SegmentationIndex():
 
@@ -27,11 +28,17 @@ class SegmentationIndex():
     def __init__(self):
 
         self.index = {}
+        self._class = {}
+        self.objs = {}
     
     def add_object(self, ob):
         """ Adds object index to dictionary """
         self.index[ob.id] = ob.index
+        self._class[ob.id] = ob._class
+        self.objs[ob.id] = ob
 
     def remove_object(self, ob):
         """ Removes object index from dictionary by id """
         del self.index[ob.id]
+        del self._class[ob.id]
+        del self.objs[ob.id]

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1031</width>
-    <height>917</height>
+    <height>928</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,7 +47,7 @@
 background-color: rgb(120, 201, 172);</string>
     </property>
     <property name="text">
-     <string>Mask</string>
+     <string>Object Mask</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="segmentationMaskFileDisplay">
@@ -70,7 +70,7 @@ background-color: rgb(120, 201, 172);</string>
     <property name="geometry">
      <rect>
       <x>410</x>
-      <y>720</y>
+      <y>690</y>
       <width>111</width>
       <height>23</height>
      </rect>
@@ -86,7 +86,7 @@ background-color: rgb(120, 201, 172);</string>
     <property name="geometry">
      <rect>
       <x>410</x>
-      <y>750</y>
+      <y>720</y>
       <width>131</width>
       <height>20</height>
      </rect>
@@ -101,7 +101,7 @@ background-color: rgb(120, 201, 172);</string>
    <widget class="QPushButton" name="filterButton">
     <property name="geometry">
      <rect>
-      <x>840</x>
+      <x>830</x>
       <y>800</y>
       <width>181</width>
       <height>31</height>
@@ -140,17 +140,140 @@ background-color: rgb(120, 201, 172);</string>
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
    </widget>
-   <widget class="QListView" name="listView">
+   <widget class="QListView" name="filterListView">
     <property name="geometry">
      <rect>
-      <x>700</x>
+      <x>820</x>
       <y>660</y>
-      <width>321</width>
+      <width>201</width>
       <height>131</height>
      </rect>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="ROIListView">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>660</y>
+      <width>201</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="AddRegionOfInterestButton">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>800</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(120, 201, 172);</string>
+    </property>
+    <property name="text">
+     <string>Add ROI</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="RemoveRegionOfInterestButton">
+    <property name="geometry">
+     <rect>
+      <x>710</x>
+      <y>800</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(230, 165, 187);</string>
+    </property>
+    <property name="text">
+     <string>Delete ROI</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="clusterButton">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>760</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(172, 199, 241);</string>
+    </property>
+    <property name="text">
+     <string>Cluster</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="ClusterMinDist">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>810</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="ClusterMinNeighbors">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>850</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>790</y>
+      <width>141</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Min dist between neighbors</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>830</y>
+      <width>171</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Min number of objects per cluster</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ColorByClusterButton">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>760</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(172, 199, 241);</string>
+    </property>
+    <property name="text">
+     <string>Color by Cluster</string>
     </property>
    </widget>
   </widget>

@@ -37,6 +37,8 @@ class ImageManagerView(QMainWindow):
 
     def closeEvent(self, event):
         """ Lets the controller know that the window has been closed so that the current image can be updated """
+        
         event.accept()
+        
         if len(self._model._filelist) > 0:
             self._main_controller.file_manager_window_close()

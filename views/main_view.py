@@ -63,21 +63,32 @@ class MainView(QMainWindow):
         self._ui.graphicsView.ui.roiBtn.hide()
         self._ui.graphicsView.ui.menuBtn.hide()
 
+        self._ui.graphicsView.view.setAspectLocked(True)
+
+        #self._ui.graphicsView.getImageItem().mouseDragEvent = self.mouseDragEvent
+        #self.current_image.mouseDragEvent = self.mouseDragEvent
+        #self.segmentation_image.mouseDragEvent = self.mouseDragEvent
+
         # I heard you like connections
         self._model.image_changed.connect(self.on_image_change)
         self._model.segmentation_image_changed.connect(self.on_seg_image_change)
         self._ui.toggleSegmentationMaskButton.clicked.connect(self.mask_button_press)
-        self._ui.actionImage_Manager.triggered.connect(self.launchImageManager)
+        self._ui.actionImage_Manager.triggered.connect(self.launch_image_manager)
         self._ui.imageFileNavigatorView.currentIndexChanged.connect(self.current_image_changed)
+        self._ui.loadAnalysisFileButton.clicked.connect(self.load_analysis_file_clicked)
+        self._ui.filterButton.clicked.connect(self.launch_filter_manager)
+        self._ui.AddRegionOfInterestButton.clicked.connect(self.add_roi)
+        self._ui.clusterButton.clicked.connect(self.cluster_button_press)
+        self._ui.ColorByClusterButton.clicked.connect(self.color_by_cluster_clicked)
         self._image_manager_controller.change_current_image.connect(self.current_image_changed)
-        self._file_table_model.file_table_data_changed.connect(self.file_list_changed)
+        self._image_manager_controller.image_manager_window_closed.connect(self.update_file_list)
         self._seg_class_model.class_table_update.connect(self._filter_table_model.class_list_changed)
-        self._ui.loadAnalysisFileButton.clicked.connect(self.loadAnalysisFileClicked)
-        self._ui.filterButton.clicked.connect(self.launchFilterManager)
+        self._filter_controller.filters_changed.connect(self.filter_objects_from_seg_image)
+         
 
         self._current_image_index = -1
 
-    def launchImageManager(self):
+    def launch_image_manager(self):
         
         """
             Launches ImageManagerView GUI when the "Image Manager" is selected from the File menu
@@ -86,7 +97,7 @@ class MainView(QMainWindow):
         self._image_manager_view = ImageManagerView(self._file_table_model, self._image_manager_controller)
         self._image_manager_view.show()
 
-    def launchFilterManager(self):
+    def launch_filter_manager(self):
 
         """
             Launches FilterManagerView GUI when the "Manage Filters" button is pressed
@@ -96,29 +107,28 @@ class MainView(QMainWindow):
             self._filter_manager_view.show()
 
     @pyqtSlot(list)
-    def file_list_changed(self, value):
+    def update_file_list(self, value):
         """
             Detects when the image list has changed in the file table model and updates the 
             image models accordingly.
         """
-        try:
-            if (value[0] == -1):
-                filename = self._file_table_model._filelist[-1].split("/")[-1]
-                self._ui.imageFileNavigatorView.addItem(filename)
-                self.all_models.add_image_model(filename)
-                self.all_models.add_seg_model(filename)
-            else:
-                for row in value:
-                    self._ui.imageFileNavigatorView.removeItem(row)
-    
-        except IndexError:
-            pass
+        self._current_image_index = -1
 
+        for i in range(self._ui.imageFileNavigatorView.count(),0,-1):
+            self._ui.imageFileNavigatorView.removeItem(i-1)
+
+        for entry in value:
+            filename = entry.split("/")[-1]
+            self._ui.imageFileNavigatorView.addItem(filename)
+            self.all_models.add_image_model(filename)
+            self.all_models.add_seg_model(filename)
+    
     @pyqtSlot(int)
     def current_image_changed(self, value):
         """
             Detects when the user has selected a new image to view and updates the models accordingly
         """
+
         if (self._current_image_index != self._ui.imageFileNavigatorView.currentIndex()):
             self.all_models.current_id = self._file_table_model._filelist[self._ui.imageFileNavigatorView.currentIndex()]
             self._current_image_index = self._ui.imageFileNavigatorView.currentIndex()
@@ -161,7 +171,7 @@ class MainView(QMainWindow):
         if idx.column() == 0:
             self._main_controller.change_class_color(idx.row())
     
-    def loadAnalysisFileClicked(self):
+    def load_analysis_file_clicked(self):
         """
             Detects when the "Load Analysis File" button is clicked and notifies the
             main controller to load it. Then tells the filter controller to index all of the
@@ -177,3 +187,45 @@ class MainView(QMainWindow):
             if (self._model.has_segmentation_image) and tf:
                 self._filter_controller.index_objects()
                 self._ui.analysisFileDisplay.setText(filename)
+    
+    def filter_objects_from_seg_image(self):
+
+        results_index = self._filter_controller.combine_filters()
+
+        if results_index is not None:
+            results = results_index['object_id'].values
+        else:
+            results = self.all_models.object_data['object_id'].values
+        
+        self.all_models.filter_results = results_index
+        
+        self._main_controller.construct_seg_image_from_objectids(results)
+
+    def add_roi(self):
+        
+        #self.setROI = not self.setROI
+        defaultx = self._model.segmentation_image.shape[0]/10
+        defaulty = self._model.segmentation_image.shape[1]/10
+        
+        roi = pg.PolyLineROI([[0,0], [0,defaultx], [defaulty,defaultx], [defaulty,0]], closed=True)
+        
+        label = "ROI_" + str(len(self.all_models.rois.keys()) + 1)
+        self.all_models.rois[label] = roi
+
+        self._ui.graphicsView.view.addItem(roi)
+        self._filter_table_model.non_class_filterable_object_list.append(label)
+        self._filter_table_model.class_list_changed([row[0] for row in self._seg_class_model._color_table.values()])
+    
+    def update_roi_list(self):
+        return
+        #self.ROIListView.setModel(self.all_models.roi_model)
+
+    def cluster_button_press(self):
+        if self.all_models.filter_results is not None:
+            try:
+                min_dist = float( self._ui.ClusterMinDist.text() )
+                min_neighbors = int(self._ui.ClusterMinNeighbors.text() )
+                self._main_controller.cluster_objects(self.all_models.filter_results, min_dist, min_neighbors)
+            except ValueError: print ( "Enter parameters for clustering")
+        
+        

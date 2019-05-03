@@ -16,6 +16,7 @@ class ImageManagerController(QWidget):
         
         self._model = model
 
+    image_manager_window_closed = pyqtSignal(list)
     change_current_image = pyqtSignal(int)
 
     def request_image_files(self):
@@ -59,6 +60,8 @@ class ImageManagerController(QWidget):
 
     def file_manager_window_close(self):
         """ Lets the main view know that the file manager window is closed and updates the current image """
+        self._model.file_table_data_changed.emit([-1])
+        self.image_manager_window_closed.emit(self._model._filelist)
         self.change_current_image.emit(1)
     
     def getScale(self):

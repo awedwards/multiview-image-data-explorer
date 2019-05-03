@@ -42,11 +42,15 @@ class FilterManagerView(QMainWindow):
         self._ui.FilterManagerTableView.setSelectionBehavior(QTableWidget.SelectRows)
         self._ui.FilterManagerTableView.setModel(self._filter_model)
 
+        self._filter_controller.filters_changed.connect(self.update_total_objects_filtered)
+        self._ui.ORRadioButton.toggled.connect(self.check_or_button)
+        self._ui.ANDRadioButton.toggled.connect(self.check_or_button)
 
-
+        self._ui.ANDRadioButton.setChecked(True)
+        
     def closeEvent(self, event):
         self._filter_controller.filter_manager_window_close()
-        self._filter_model.OR = self._ui.ORRadioButton.isChecked()   
+        
         event.accept()
     
     def get_selected_values(self):
@@ -62,7 +66,26 @@ class FilterManagerView(QMainWindow):
 
         if self.current_query is not None:
             self._filter_model.add_row(self.current_query)
+        
+        self.update_total_objects_filtered()
     
     def remove_filter(self):
         
         self._filter_model.delete_row(self._ui.FilterManagerTableView.selectedIndexes())
+        self.update_total_objects_filtered()
+    
+    def update_total_objects_filtered(self):
+
+        result = self._filter_controller.combine_filters()
+
+        if result is None:
+            total = len(self._filter_controller._main_model.object_data)
+        else:
+            total = len(result)
+
+        self._ui.totalResultsTextBox.setText(str(total))
+    
+    def check_or_button(self):
+
+        self._filter_model.OR = self._ui.ORRadioButton.isChecked()
+        self.update_total_objects_filtered()

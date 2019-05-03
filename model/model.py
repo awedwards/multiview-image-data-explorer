@@ -7,7 +7,7 @@ loaded in from analysis file
 
 from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QHeaderView
 from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage, QPixmap, QStandardItemModel
 
 from model.image_model import ImageModel
 from model.segmentation_class_table_model import SegmentationClassTableModel
@@ -22,7 +22,11 @@ class Model(QObject):
         self.seg_models[""] = SegmentationClassTableModel(data=[], header=["Color", "Class"])
         self.current_id = ""
         self.object_data = None
+        self.filter_results = None
         self.segmentation_index = None
+
+        self.rois = {}
+        self.roi_model = QStandardItemModel()
             
     @property
     def current_id(self):

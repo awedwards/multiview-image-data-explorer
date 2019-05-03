@@ -7,6 +7,7 @@ and the segmentation class table models.
 
 from PyQt5.QtWidgets import QWidget, QInputDialog
 from PyQt5.QtGui import QColor, QBrush, QColorDialog, QFileDialog
+from PyQt5.QtCore import pyqtSignal
 import h5py
 import numpy as np
 import pandas as pd
@@ -15,6 +16,8 @@ import os
 from matplotlib import pyplot as plt
 
 from skimage.transform import rescale
+from sklearn.cluster import DBSCAN
+
 DEFAULT_COLORS = [(0,0,0), (0,255,149), (230,0,103), (252,205,0), (0,116,241), (255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255)]
 
 class ImageDisplayController(QWidget):
@@ -26,7 +29,7 @@ class ImageDisplayController(QWidget):
         self._current_image_model = self._main_model.current_image_model
         self._seg_class_model = self._main_model.current_seg_model
         self.classes = []
-    
+
     def read_image(self, fname):
         """ Reads image. H5 format only, for now """
 
@@ -63,7 +66,7 @@ class ImageDisplayController(QWidget):
             
             # initializes the color table and segmentation mask view with default colors
             for c,i in enumerate(self.classes):
-                color_table[i] = ["Class " + str(c), QBrush(QColor(*DEFAULT_COLORS[i]))]
+                color_table[c] = ["Class " + str(c), QBrush(QColor(*DEFAULT_COLORS[i]))]
             self._seg_class_model.populate_class_table(color_table)
 
             # rescales segmentation image and saves object pixel locations for fast color updates
@@ -84,19 +87,25 @@ class ImageDisplayController(QWidget):
         values = np.unique(np.round(image, decimals=0))
         nclasses = len(self._seg_class_model._color_table.keys())
 
-        if (nclasses != len(values)):
-            print("Error scaling segmentation image")
-            raise(ValueError)
+        #if (nclasses != len(values)):
+        #    print("Error scaling segmentation image")
+        #    raise(ValueError)
 
         for k in np.arange(nclasses):
-            v = int(values[k])
-            self._seg_class_model._class_loc[k] = np.where(image == values[v])
+            try:
+                v = int(values[k])
+                self._seg_class_model._class_loc[k] = np.where(image == values[v])
+            except IndexError:
+                self._seg_class_model._class_loc[k] = [np.array([]),np.array([])]
 
     def create_seg_image(self, image):
         """ Converts binary or n-ary segmentation image mask to rgb image with colors from the
             color table in the segmentation class table model
         """
-        new_image = np.zeros([s for s in image.shape] + [3])
+        if len(image.shape) < 3:
+            new_image = np.zeros([s for s in image.shape] + [3])
+        else:
+            new_image = np.zeros(image.shape)
 
         for k,v in self._seg_class_model._color_table.items():
             new_image = self.set_color_in_seg_image(new_image, k)
@@ -121,12 +130,16 @@ class ImageDisplayController(QWidget):
             them to a new rgb color
         """
         idx = self._seg_class_model._class_loc[k]
+        
         color = self._seg_class_model._color_table[k][1].color()
         r = color.red()
         g = color.green()
         b = color.blue()
-
-        image[idx[0], idx[1], :] = (r,g,b)
+        
+        try:
+            image[idx[0], idx[1], :] = (r,g,b)
+        except IndexError:
+            pass
 
         return image
     
@@ -139,6 +152,7 @@ class ImageDisplayController(QWidget):
 
         if os.path.isfile(analysis_file_location[0]):
             self._main_model.object_data = pd.read_csv(analysis_file_location[0])
+            self._main_model.filter_results = self._main_model.object_data
             self.update_models_from_analysis_file()
             return (True, os.path.split(analysis_file_location[0])[-1])
 
@@ -158,6 +172,31 @@ class ImageDisplayController(QWidget):
                     cy = row['Center of the object_0']
                     self._seg_class_model.set_label_in_color_table( self._current_image_model.full_segmentation_data[cx, cy], c)
                     break
+
+    def construct_seg_image_from_objectids(self, indexes):
+
+        image = np.zeros([s for s in self._current_image_model.full_segmentation_data.shape] + [3])
+        
+        for i in indexes:
+            
+            idx = self._main_model.segmentation_index.index[i]
+            k = self._main_model.segmentation_index._class[i]
+            image[idx[0], idx[1],:] = k
+
+        #update class locations
+        self._current_image_model.segmentation_data = self.image_rescale( image, self._current_image_model.image_scale)
+        self.index_class_locations(self._current_image_model.segmentation_data)
+        self._current_image_model.segmentation_image = self.create_seg_image(self._current_image_model.segmentation_data)
+
+    def cluster_objects(self, dataframe, min_dist, min_neighbors):
+
+        x1 = dataframe['Center of the object_1']
+        x2 = dataframe['Center of the object_0']
+
+        db = DBSCAN(eps=min_dist, min_samples=min_neighbors).fit( np.transpose( np.vstack((x1, x2)) ) )
+        self._main_model.cluster_labels = db.labels_
+
+        
 
     def str2bool(self, s):
 
