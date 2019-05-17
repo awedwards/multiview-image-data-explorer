@@ -27,6 +27,7 @@ class ImageModel(QObject):
         self.full_segmentation_image = self.segmentation_data.copy()
         self.segmentation_image = self.segmentation_data.copy()
         self.segmentation_label = "None"
+        self.cluster_image = self.segmentation_data.copy()
         self.segmentation_classes = []
         self.mask_on = False
         self.image_scale = 1.0

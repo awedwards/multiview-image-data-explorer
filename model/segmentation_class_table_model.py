@@ -7,6 +7,7 @@ Data model for segmentation label and color display in main gui window
 
 import PyQt5.QtCore as QtCore
 from PyQt5.QtCore import Qt, QAbstractTableModel, pyqtSignal
+from model import color_lookup_table
 
 class SegmentationClassTableModel(QAbstractTableModel):
 
@@ -16,7 +17,6 @@ class SegmentationClassTableModel(QAbstractTableModel):
         self._data = data
         self._header = header
         self._color_table = dict()
-        self._class_loc = dict()
 
     class_table_update = pyqtSignal(list)
 
@@ -28,13 +28,13 @@ class SegmentationClassTableModel(QAbstractTableModel):
 
             if index.column() == 1:
                 # sets user provided class label
-                self._data[i][1] = self._color_table[i][0]
+                self._data[i][1] = self._color_table[i].label
 
             return '{0}'.format(self._data[i][j])
         elif role == QtCore.Qt.BackgroundColorRole:
             if index.column() == 0:
                 # sets user provided class color
-                return self._color_table[index.row()][1]
+                return self._color_table[index.row()].color
         else:
             return QtCore.QVariant()
 
@@ -56,18 +56,18 @@ class SegmentationClassTableModel(QAbstractTableModel):
 
         data = []
         for v in color_table.values():
-            data.append(["", v[0]])
+            data.append(["", v.label])
 
         self.layoutAboutToBeChanged.emit()
         self._data = data
         self.layoutChanged.emit()
 
-        self.class_table_update.emit([row[0] for row in self._color_table.values()])
+        self.class_table_update.emit([row.label for row in self._color_table.values()])
 
     def change_color(self, row, color):
         """ Changes a single color and notifies view """
         self.layoutAboutToBeChanged.emit()
-        self._color_table[row][1] = color
+        self._color_table[row].color = color
         self.layoutChanged.emit()
 
     def rowCount(self, parent=None):
@@ -86,14 +86,13 @@ class SegmentationClassTableModel(QAbstractTableModel):
         if index.isValid() and (index.column() == 1):
             
             self.layoutAboutToBeChanged.emit()
-            self._color_table[index.row()][0] = value    
+            self._color_table[index.row()].label = value    
             self.layoutChanged.emit()
-            self.class_table_update.emit([row[0] for row in self._color_table.values()])
+            self.class_table_update.emit([row.label for row in self._color_table.values()])
             return True
 
         return False
     
     def set_label_in_color_table(self, index, label):
-        self._color_table[ index ][0] = label
-        self.class_table_update.emit([row[0] for row in self._color_table.values()])
-
+        self._color_table[ index ].label = label
+        self.class_table_update.emit([row.label for row in self._color_table.values()])

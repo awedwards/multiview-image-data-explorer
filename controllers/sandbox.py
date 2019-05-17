@@ -3,8 +3,9 @@ import operator
 from functools import reduce
 import numpy as np
 import h5py
-df = pd.read_csv("D:\\Austin\CD8a_CD4_44784_Image_Export_01\\full_object_feature_output.csv", index_col=False,sep=',')
+#df = pd.read_csv("D:\\Austin\CD8a_CD4_44784_Image_Export_01\\full_object_feature_output.csv", index_col=False,sep=',')
 from sklearn.cluster import DBSCAN
+from matplotlib import pyplot as plt
 #f = h5py.File("D:\\Austin\CD8a_CD4_44784_Image_Export_01\\full.hdf5")
 
 #print(f.keys)
@@ -24,23 +25,23 @@ from sklearn.cluster import DBSCAN
 #idx[0] = True
 #idx[3] = True
 #print(-idx)
+"""
+prop_cycle = plt.rcParams['axes.prop_cycle']
+colors = prop_cycle.by_key()['color']
 
-results = [ df[df["Predicted Class"] == "CD4"], df[df["Predicted Class"] == "CD8"]]
+for c in colors:
+    c = c.lstrip("#")
 
-results = reduce(lambda  left,right: pd.merge(left,right,
-                                                how='outer'), results)
+    print ( tuple( int(c[i:i+2], 16) for i in [0, 2, 4]) )
 
-cx = results["Center of the object_1"]
-cy = results["Center of the object_0"]
+print(colors)               
+"""
 
-X = np.vstack((cx, cy))
+#f = h5py.File("D:\\Austin\\test_data\\tmp_3920_8047_3858_7920_Object Predictions.h5")
 
-min_dist = 20
-min_neighbors = 2
-db = DBSCAN(eps=min_dist, min_samples=min_neighbors).fit(np.transpose(X))
-labels = db.labels_
+#print(np.squeeze(f["exported_data"]).shape)
 
-# Number of clusters in labels, ignoring noise if present.
-n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-
-#print('Estimated number of clusters: %d' % n_clusters_)
+x = np.array([[1, 2, 3],[8,5.5,6.7],[2.1,0,10]])
+print(x)
+x[np.where(x-np.array(x, dtype=np.uint8)>0.1 )] = 0
+print(x)

@@ -24,7 +24,8 @@ class Model(QObject):
         self.object_data = None
         self.filter_results = None
         self.segmentation_index = None
-
+        self.cluster_ids = []
+        
         self.rois = {}
         self.roi_model = QStandardItemModel()
             
@@ -40,14 +41,6 @@ class Model(QObject):
             self.current_seg_model = self.seg_models[value]
         except KeyError:
             pass 
-    
-    @property
-    def object_data(self):
-        return self.__object_data
-    
-    @object_data.setter
-    def object_data(self, value):
-        self.__object_data = value
 
     def add_image_model(self, key):
         self.images[key] = ImageModel()

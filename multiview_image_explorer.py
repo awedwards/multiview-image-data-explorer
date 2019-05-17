@@ -1,3 +1,11 @@
+"""
+@author: Austin Edwards
+
+Multiview Image Exlporer is a visualization and analysis tool to help
+make sense of multiple imaging views of the same biological tissue.
+
+"""
+
 import sys
 
 from PyQt5.QtWidgets import QApplication, QMainWindow
@@ -14,7 +22,7 @@ class App(QApplication):
     def __init__(self, argv):
         super(App, self).__init__(argv)
         self.model = Model()
-        self.file_table_model = fileTableModel(data=[], header=["File path", "Has segmentation mask?", "Segmentation mask path"])
+        self.file_table_model = fileTableModel(data=[], header=["File path", "Has segmentation mask?", "Segmentation mask path", "Scale"])
         self.filter_table_model = filterTableModel(data=[], header=["Object", "Function", "Value"])
         self.main_controller = ImageDisplayController(self.model)
 

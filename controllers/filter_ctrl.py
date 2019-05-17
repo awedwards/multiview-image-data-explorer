@@ -68,7 +68,7 @@ class FilterController(QWidget):
             id_ = ids[i]
 
             # Speed up connected component search by just using bounding box information
-            sub = self._image_model.full_segmentation_data[y1:y2+1,x1:x2+1]
+            sub = self._image_model.full_segmentation_image[y1:y2+1,x1:x2+1]
 
             # Uses connected components algorithm to find all of the pixels
             # associated with each object
@@ -77,7 +77,7 @@ class FilterController(QWidget):
             idx = np.where(labels == lbl)
 
             # only index is saved right now, not objects
-            obj = SegmentationObject(id_, cx, cy, list(boxes[i,:]), self._image_model.full_segmentation_data[cy, cx])
+            obj = SegmentationObject(id_, cx, cy, list(boxes[i,:]), self._image_model.full_segmentation_image[cy, cx])
             obj.index = np.vstack([idx[0]+y1, idx[1]+x1])
         
             index.add_object(obj)

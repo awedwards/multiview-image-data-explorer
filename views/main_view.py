@@ -50,6 +50,11 @@ class MainView(QMainWindow):
         self._ui.graphicsView.view.addItem(self.segmentation_image)
         self.segmentation_opacity = 0.0
 
+        # Default cluster mask turned off
+        self.cluster_image = pg.ImageItem()
+        self._ui.graphicsView.view.addItem(self.cluster_image)
+        self.cluster_opacity = 0.0
+
         # Settings for segmentation class table
         self._ui.segmentationClassList.setModel(self._seg_class_model)
         self._ui.segmentationClassList.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -79,7 +84,7 @@ class MainView(QMainWindow):
         self._ui.filterButton.clicked.connect(self.launch_filter_manager)
         self._ui.AddRegionOfInterestButton.clicked.connect(self.add_roi)
         self._ui.clusterButton.clicked.connect(self.cluster_button_press)
-        self._ui.ColorByClusterButton.clicked.connect(self.color_by_cluster_clicked)
+        self._ui.ToggleClusterButton.clicked.connect(self.toggle_cluster_clicked)
         self._image_manager_controller.change_current_image.connect(self.current_image_changed)
         self._image_manager_controller.image_manager_window_closed.connect(self.update_file_list)
         self._seg_class_model.class_table_update.connect(self._filter_table_model.class_list_changed)
@@ -190,13 +195,19 @@ class MainView(QMainWindow):
     
     def filter_objects_from_seg_image(self):
 
+        self.segmentation_opacity = 0.0
+        self.segmentation_image.setImage(self._model.segmentation_image, opacity=self.segmentation_opacity)
+
+        self.cluster_opacity = 0.0
+        self.cluster_image.setImage(self._model.cluster_image, opacity=self.cluster_opacity)
+
         results_index = self._filter_controller.combine_filters()
 
         if results_index is not None:
             results = results_index['object_id'].values
         else:
             results = self.all_models.object_data['object_id'].values
-        
+            
         self.all_models.filter_results = results_index
         
         self._main_controller.construct_seg_image_from_objectids(results)
@@ -214,13 +225,16 @@ class MainView(QMainWindow):
 
         self._ui.graphicsView.view.addItem(roi)
         self._filter_table_model.non_class_filterable_object_list.append(label)
-        self._filter_table_model.class_list_changed([row[0] for row in self._seg_class_model._color_table.values()])
+        self._filter_table_model.class_list_changed([row.label for row in self._seg_class_model._color_table.values()])
     
     def update_roi_list(self):
         return
         #self.ROIListView.setModel(self.all_models.roi_model)
 
     def cluster_button_press(self):
+
+        self.all_models.cluster_ids = []
+
         if self.all_models.filter_results is not None:
             try:
                 min_dist = float( self._ui.ClusterMinDist.text() )
@@ -228,4 +242,15 @@ class MainView(QMainWindow):
                 self._main_controller.cluster_objects(self.all_models.filter_results, min_dist, min_neighbors)
             except ValueError: print ( "Enter parameters for clustering")
         
+        self.segmentation_opacity = 0.0
+        self.segmentation_image.setImage(self._model.segmentation_image, opacity=self.segmentation_opacity)
+
+        self.cluster_opacity = 1.0
+        self.cluster_image.setImage(self._model.cluster_image, opacity=self.cluster_opacity)
+
+    def toggle_cluster_clicked(self):
+
         
+        self.cluster_opacity = 1 - self.cluster_opacity
+        self.cluster_image.setImage(self._model.cluster_image, opacity=self.cluster_opacity)
+    

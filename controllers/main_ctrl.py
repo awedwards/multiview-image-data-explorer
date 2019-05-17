@@ -17,6 +17,7 @@ from matplotlib import pyplot as plt
 
 from skimage.transform import rescale
 from sklearn.cluster import DBSCAN
+from model.color_lookup_table import ColorLUT
 
 DEFAULT_COLORS = [(0,0,0), (0,255,149), (230,0,103), (252,205,0), (0,116,241), (255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255)]
 
@@ -39,8 +40,8 @@ class ImageDisplayController(QWidget):
                 if "data" in k:
                     key=k
                     break
-            return imagefile[key]
-            #return np.squeeze(imagefile[key])
+            if (len(imagefile[key].shape) > 3): return np.squeeze(imagefile[key])
+            else: return np.array(imagefile[key])
         except IOError:
             print("Can't read image")
     
@@ -58,15 +59,15 @@ class ImageDisplayController(QWidget):
 
             # saves a copy of the original segmentation image before rescaling
             color_table = dict()
-            self._current_image_model.full_segmentation_data = self.read_image(data_row[2])
-            self._current_image_model.segmentation_data = np.squeeze(self._current_image_model.full_segmentation_data).copy()
-            
+            self._current_image_model.full_segmentation_image = self.read_image(data_row[2])
+            self._current_image_model.segmentation_data = self._current_image_model.full_segmentation_image.copy()
+
             # gets class labels directly from segmentation image
             self.classes = np.unique(self._current_image_model.segmentation_data)
             
             # initializes the color table and segmentation mask view with default colors
             for c,i in enumerate(self.classes):
-                color_table[c] = ["Class " + str(c), QBrush(QColor(*DEFAULT_COLORS[i]))]
+                color_table[c] = ColorLUT(c, "Class "+ str(c), None, QBrush(QColor(*DEFAULT_COLORS[i])) )
             self._seg_class_model.populate_class_table(color_table)
 
             # rescales segmentation image and saves object pixel locations for fast color updates
@@ -83,20 +84,19 @@ class ImageDisplayController(QWidget):
         """ Saves all of the pixel locations in the segmentation image for each class in
             the segmentation class model
         """
+        #image = np.round(image, decimals=0)
+        image[ np.where(image - np.array(image, dtype=np.uint8) > 0.01) ] = 0
+        image = np.round(image, decimals=0)
 
-        values = np.unique(np.round(image, decimals=0))
-        nclasses = len(self._seg_class_model._color_table.keys())
+        values = np.unique(image)
 
-        #if (nclasses != len(values)):
-        #    print("Error scaling segmentation image")
-        #    raise(ValueError)
+        classes = self._seg_class_model._color_table.keys()
 
-        for k in np.arange(nclasses):
-            try:
-                v = int(values[k])
-                self._seg_class_model._class_loc[k] = np.where(image == values[v])
-            except IndexError:
-                self._seg_class_model._class_loc[k] = [np.array([]),np.array([])]
+        for k in classes:
+            if k in values:
+                self._seg_class_model._color_table[k].index = np.where(image == k)
+            else:
+                self._seg_class_model._color_table[k].index = [np.array([]),np.array([])]
 
     def create_seg_image(self, image):
         """ Converts binary or n-ary segmentation image mask to rgb image with colors from the
@@ -107,7 +107,7 @@ class ImageDisplayController(QWidget):
         else:
             new_image = np.zeros(image.shape)
 
-        for k,v in self._seg_class_model._color_table.items():
+        for k in self._seg_class_model._color_table.keys():
             new_image = self.set_color_in_seg_image(new_image, k)
 
         return new_image
@@ -129,17 +129,14 @@ class ImageDisplayController(QWidget):
         """ Sets new color by retrieving the index of all pixels at class k and setting
             them to a new rgb color
         """
-        idx = self._seg_class_model._class_loc[k]
-        
-        color = self._seg_class_model._color_table[k][1].color()
+
+        idx = self._seg_class_model._color_table[k].index
+        color = self._seg_class_model._color_table[k].color.color()
         r = color.red()
         g = color.green()
         b = color.blue()
-        
-        try:
-            image[idx[0], idx[1], :] = (r,g,b)
-        except IndexError:
-            pass
+        if idx is not None:
+            image[idx[:,0], idx[:,1], :] = (r,g,b)
 
         return image
     
@@ -168,24 +165,24 @@ class ImageDisplayController(QWidget):
             for i in self._main_model.object_data.index:
                 row = self._main_model.object_data.iloc[i]
                 if row['Predicted Class'] == c:
-                    cx = row['Center of the object_1']
-                    cy = row['Center of the object_0']
-                    self._seg_class_model.set_label_in_color_table( self._current_image_model.full_segmentation_data[cx, cy], c)
+                    cx = int( row['Center of the object_1'] )
+                    cy = int( row['Center of the object_0'] )
+                    self._seg_class_model.set_label_in_color_table( self._current_image_model.full_segmentation_image[cx, cy], c)
                     break
 
     def construct_seg_image_from_objectids(self, indexes):
 
-        image = np.zeros([s for s in self._current_image_model.full_segmentation_data.shape] + [3])
+        image = np.zeros([s for s in self._current_image_model.full_segmentation_image.shape] + [3])
         
         for i in indexes:
-            
             idx = self._main_model.segmentation_index.index[i]
             k = self._main_model.segmentation_index._class[i]
+            
             image[idx[0], idx[1],:] = k
 
         #update class locations
         self._current_image_model.segmentation_data = self.image_rescale( image, self._current_image_model.image_scale)
-        self.index_class_locations(self._current_image_model.segmentation_data)
+        self.index_class_locations(self._current_image_model.segmentation_data[:,:,0])
         self._current_image_model.segmentation_image = self.create_seg_image(self._current_image_model.segmentation_data)
 
     def cluster_objects(self, dataframe, min_dist, min_neighbors):
@@ -195,8 +192,36 @@ class ImageDisplayController(QWidget):
 
         db = DBSCAN(eps=min_dist, min_samples=min_neighbors).fit( np.transpose( np.vstack((x1, x2)) ) )
         self._main_model.cluster_labels = db.labels_
-
         
+        lbl = [l for l in np.unique(self._main_model.cluster_labels) if l != -1]
+        for l in lbl:
+            self._main_model.cluster_ids.append( dataframe.iloc[np.where(db.labels_ == l)[0]]["object_id"].values )
+        
+        self.initialize_cluster_image()
+
+    def initialize_cluster_image(self):
+
+        new_image = np.zeros([s for s in self._current_image_model.full_segmentation_image.shape] + [3])
+
+        for ob in self._main_model.filter_results['object_id'].values:
+
+            index = self._main_model.segmentation_index.index[ob]
+            new_image[index[0], index[1],:] = (220,220,220)
+
+        self.color_cluster_image(new_image)
+    
+    def color_cluster_image(self, image):
+
+        # skip black
+        colors = DEFAULT_COLORS[1:]
+
+        for cluster in self._main_model.cluster_ids:
+            select_color = np.random.randint(len(DEFAULT_COLORS))
+            for ob in cluster:
+                index = self._main_model.segmentation_index.index[ob]
+                image[index[0], index[1],:] = DEFAULT_COLORS[select_color]
+        
+        self._current_image_model.cluster_image = self.image_rescale(image, self._current_image_model.image_scale)
 
     def str2bool(self, s):
 
