@@ -83,12 +83,14 @@ class MainView(QMainWindow):
         self._ui.loadAnalysisFileButton.clicked.connect(self.load_analysis_file_clicked)
         self._ui.filterButton.clicked.connect(self.launch_filter_manager)
         self._ui.AddRegionOfInterestButton.clicked.connect(self.add_roi)
+        self._ui.RemoveRegionOfInterestButton.clicked.connect(self.delete_roi)
         self._ui.clusterButton.clicked.connect(self.cluster_button_press)
         self._ui.ToggleClusterButton.clicked.connect(self.toggle_cluster_clicked)
         self._image_manager_controller.change_current_image.connect(self.current_image_changed)
         self._image_manager_controller.image_manager_window_closed.connect(self.update_file_list)
         self._seg_class_model.class_table_update.connect(self._filter_table_model.class_list_changed)
         self._filter_controller.filters_changed.connect(self.filter_objects_from_seg_image)
+        self._ui.ROIListView.currentRowChanged.connect(self.roi_selected)
          
 
         self._current_image_index = -1
@@ -201,7 +203,7 @@ class MainView(QMainWindow):
         self.cluster_opacity = 0.0
         self.cluster_image.setImage(self._model.cluster_image, opacity=self.cluster_opacity)
 
-        results_index = self._filter_controller.combine_filters()
+        results_index = self._filter_table_model.query_results
 
         if results_index is not None:
             results = results_index['object_id'].values
@@ -214,19 +216,43 @@ class MainView(QMainWindow):
 
     def add_roi(self):
         
-        #self.setROI = not self.setROI
-        defaultx = self._model.segmentation_image.shape[0]/10
-        defaulty = self._model.segmentation_image.shape[1]/10
-        
-        roi = pg.PolyLineROI([[0,0], [0,defaultx], [defaulty,defaultx], [defaulty,0]], closed=True)
-        
-        label = "ROI_" + str(len(self.all_models.rois.keys()) + 1)
-        self.all_models.rois[label] = roi
+        if self._model.has_segmentation_image:
+            defaultx = self._model.segmentation_image.shape[0]/2
+            defaulty = self._model.segmentation_image.shape[1]/2
+            w = np.floor(np.min([self._model.segmentation_image.shape[0]/10, self._model.segmentation_image.shape[1]/10]))
+            roi = pg.PolyLineROI([[defaulty-w,defaultx-w], [defaulty-w,defaultx+w], [defaulty+w,defaultx+w], [defaulty+w,defaultx-w]], closed=True, movable=True)
+            
+            label = "ROI_" + str(len(self.all_models.rois.keys()) + 1)
+            self.all_models.rois[label] = roi
 
-        self._ui.graphicsView.view.addItem(roi)
-        self._filter_table_model.non_class_filterable_object_list.append(label)
-        self._filter_table_model.class_list_changed([row.label for row in self._seg_class_model._color_table.values()])
+            self._ui.ROIListView.addItem(label)
+
+            self._ui.graphicsView.view.addItem(roi)
+            self._filter_table_model.non_class_filterable_object_list.append(label)
+            self._filter_table_model.class_list_changed([row.label for row in self._seg_class_model._color_table.values()])
     
+    @pyqtSlot(int)
+    def roi_selected(self, value):
+
+        if value != -1:
+            for row in range(self._ui.ROIListView.count()):
+                if row == self._ui.ROIListView.currentRow():
+                    label =self._ui.ROIListView.currentItem().text()
+                    self.all_models.rois[label].setMouseHover(True)
+                    self.all_models.rois[label].sigHoverEvent.emit(self.all_models.rois[label])
+                else:
+                    label =self._ui.ROIListView.item(row).text()
+                    self.all_models.rois[label].setMouseHover(False)
+                    self.all_models.rois[label].sigHoverEvent.emit(self.all_models.rois[label])
+                
+
+    def delete_roi(self):
+
+        label = str(self._ui.ROIListView.takeItem(self._ui.ROIListView.currentRow()).text())
+        self._ui.graphicsView.view.removeItem(self.all_models.rois[label])
+        del self.all_models.rois[label]
+        
+
     def update_roi_list(self):
         return
         #self.ROIListView.setModel(self.all_models.roi_model)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui.ui'
+# Form implementation generated from reading ui file '.\gui.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1031, 928)
+        MainWindow.resize(1031, 953)
         MainWindow.setStyleSheet("background-color: rgb(245,245,245);")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -84,6 +84,14 @@ class Ui_MainWindow(object):
         self.ToggleClusterButton.setGeometry(QtCore.QRect(490, 760, 101, 23))
         self.ToggleClusterButton.setStyleSheet("background-color: rgb(172, 199, 241);")
         self.ToggleClusterButton.setObjectName("ToggleClusterButton")
+        self.saveFilteredCSVButton = QtWidgets.QPushButton(self.centralwidget)
+        self.saveFilteredCSVButton.setGeometry(QtCore.QRect(830, 870, 111, 23))
+        self.saveFilteredCSVButton.setStyleSheet("background-color: rgb(120, 201, 172);")
+        self.saveFilteredCSVButton.setObjectName("saveFilteredCSVButton")
+        self.csvSavePathDisplay = QtWidgets.QLineEdit(self.centralwidget)
+        self.csvSavePathDisplay.setGeometry(QtCore.QRect(830, 840, 113, 20))
+        self.csvSavePathDisplay.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.csvSavePathDisplay.setObjectName("csvSavePathDisplay")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1031, 21))
@@ -141,7 +149,8 @@ class Ui_MainWindow(object):
         self.clusterButton.setText(_translate("MainWindow", "Cluster"))
         self.label.setText(_translate("MainWindow", "Min dist between neighbors"))
         self.label_2.setText(_translate("MainWindow", "Min number of objects per cluster"))
-        self.ToggleClusterButton.setText(_translate("MainWindow", "Toggle Cluster Mask"))
+        self.ToggleClusterButton.setText(_translate("MainWindow", "Toggle cluster"))
+        self.saveFilteredCSVButton.setText(_translate("MainWindow", "Save filtered csv"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         self.menuView.setTitle(_translate("MainWindow", "View"))
