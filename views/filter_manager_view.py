@@ -5,8 +5,8 @@ View window for creating new data filters.
 
 """
 
-from PyQt5.QtWidgets import QMainWindow, QTableWidget, QHeaderView
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QTreeWidgetItem, QMainWindow
+from PyQt5.QtCore import pyqtSlot, Qt
 from views.filter_manager_view_ui import Ui_FilterManagerMainWindow
 
 class FilterManagerView(QMainWindow):
@@ -21,71 +21,68 @@ class FilterManagerView(QMainWindow):
         self._ui = Ui_FilterManagerMainWindow()
         self._ui.setupUi(self)
 
-        self.current_query = None
-        self._ui.objectClassList.currentTextChanged.connect(self.get_selected_values)
-        self._ui.filterLogicList.currentTextChanged.connect(self.get_selected_values)
-        self._ui.filterValueInput.textEdited.connect(self.get_selected_values)
+        self.class_queries = []
+        self.non_class_queries = []
+        self.query_results = self._filter_model._data
 
-        # These should only need to be triggered when a new view is created.
-        # Don't need to update them if things change while window is closed.
-
-        for v in self._filter_model.filter_object_list:
-            self._ui.objectClassList.addItem(v)
+        object_list = QTreeWidgetItem(self._ui.filterObjectsList)
+        object_list.setText(0,"Class Objects")
         
-        for v in self._filter_model.function_list:
-            self._ui.filterLogicList.addItem(v)
+        object_list.setFlags(object_list.flags() | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
         
-        self._ui.addFilterButton.clicked.connect(self.add_current_query)
-        self._ui.removeFilterButton.clicked.connect(self.remove_filter)
+        for ob in self._filter_model.class_filterable_object_list:
+            item = QTreeWidgetItem(object_list)
+            item.setText(0,ob)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(0, Qt.Checked)
 
-        self._ui.FilterManagerTableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self._ui.FilterManagerTableView.setSelectionBehavior(QTableWidget.SelectRows)
-        self._ui.FilterManagerTableView.setModel(self._filter_model)
+        feature_list = QTreeWidgetItem(self._ui.filterObjectsList)
+        feature_list.setText(0,"Features")
+        for f in self._filter_model.non_class_filterable_object_list:
+            item = QTreeWidgetItem(feature_list)
+            item.setText(0,f)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(0, Qt.Checked)
 
-        self._filter_controller.filters_changed.connect(self.update_total_objects_filtered)
-        self._ui.ORRadioButton.toggled.connect(self.check_or_button)
-        self._ui.ANDRadioButton.toggled.connect(self.check_or_button)
+        self._ui.resetFilterSettingsButton.clicked.connect(self.reset_filter_settings)
+        self._ui.applyFilterButton.clicked.connect(self.construct_queries)
 
-        self._ui.ANDRadioButton.setChecked(True)
+        self._ui.totalResultsTextBox.setText(str(len(self._filter_model._data)))
+
+    def construct_queries(self):
         
+        # Clear previous results
+        self.class_queries = []
+        self.non_class_queries = []
+
+        # Class objects
+        object_list = self._ui.filterObjectsList.topLevelItem(0)
+        for j in range(object_list.childCount()):
+            child = object_list.child(j)
+            if (child.checkState(0) == Qt.Checked):
+                c = child.text(0)
+                f = "INCLUDE"
+                v = ""
+                self.class_queries.append((c,f,v))
+             
+
+        object_list = self._ui.filterObjectsList.topLevelItem(1)
+        for j in range(object_list.childCount()):
+            child = object_list.child(j)
+            if (child.checkState(0) == Qt.Checked):
+                c = child.text(0)
+                f = "INCLUDE"
+                v = ""
+                self.non_class_queries.append((c,f,v))
+        
+        self.query_results = self._filter_controller.combine_filters(self.class_queries, self.non_class_queries)
+        self._ui.totalResultsTextBox.setText(str(len(self.query_results)))
+
+    def reset_filter_settings(self):
+        return
+
     def closeEvent(self, event):
+        self._filter_model.query_results = self.query_results
         self._filter_controller.filter_manager_window_close()
         
         event.accept()
-    
-    def get_selected_values(self):
-
-        obj_class = self._filter_model.filter_object_list[ self._ui.objectClassList.currentIndex() ]
-        logic = self._filter_model.function_list[ self._ui.filterLogicList.currentIndex() ]
-        value = str(self._ui.filterValueInput.text())
-        self.current_query = [obj_class, logic, value]
-        count = self._filter_controller.get_filter_result_count(self.current_query)
-        self._ui.checkResultTextBox.setText(str(count))
-    
-    def add_current_query(self):
-
-        if self.current_query is not None:
-            self._filter_model.add_row(self.current_query)
-        
-        self.update_total_objects_filtered()
-    
-    def remove_filter(self):
-        
-        self._filter_model.delete_row(self._ui.FilterManagerTableView.selectedIndexes())
-        self.update_total_objects_filtered()
-    
-    def update_total_objects_filtered(self):
-
-        result = self._filter_controller.combine_filters()
-
-        if result is None:
-            total = len(self._filter_controller._main_model.object_data)
-        else:
-            total = len(result)
-
-        self._ui.totalResultsTextBox.setText(str(total))
-    
-    def check_or_button(self):
-
-        self._filter_model.OR = self._ui.ORRadioButton.isChecked()
-        self.update_total_objects_filtered()

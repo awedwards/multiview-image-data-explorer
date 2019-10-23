@@ -8,9 +8,11 @@ class filterTableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self._data = data
         self._header = header
-        self.non_class_filterable_object_list = ["Size in pixels"]
-        self.function_list = ["INCLUDE", "NOT INCLUDE", "<", "<=", ">", ">=", "="]
-        self.OR = False
+        self.non_class_filterable_object_list = []
+        #self.non_class_filterable_object_list = ["Size in pixels"]
+        self.class_filterable_object_list = []
+        self.function_list = ["INCLUDE", "NOT INCLUDE", "<", "<=", ">", ">=", "=","(",")"]
+        self.query_results = data
         
     fliter_object_list_changed_signal = pyqtSignal(list)
     
@@ -41,24 +43,11 @@ class filterTableModel(QAbstractTableModel):
     def class_list_changed(self, value):
         
         self.filter_object_list = []
+        self.class_filterable_object_list = []
 
         for item in self.non_class_filterable_object_list:
             self.filter_object_list.append(item)
         for v in value:
+            self.class_filterable_object_list.append(v)
             self.filter_object_list.append(v)
         self.fliter_object_list_changed_signal.emit(self.filter_object_list)
-
-    def add_row(self, value):
-        if value not in self._data:
-            self.layoutAboutToBeChanged.emit()
-            self._data.append(value)
-            self.layoutChanged.emit()
-
-    def delete_row(self, indexes):
-
-        rows = sorted(set(index.row() for index in indexes), reverse=True)
-        
-        self.layoutAboutToBeChanged.emit()
-        for row in rows:
-            del self._data[row]
-        self.layoutChanged.emit()

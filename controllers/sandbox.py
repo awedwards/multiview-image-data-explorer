@@ -40,8 +40,5 @@ print(colors)
 #f = h5py.File("D:\\Austin\\test_data\\tmp_3920_8047_3858_7920_Object Predictions.h5")
 
 #print(np.squeeze(f["exported_data"]).shape)
-
-x = np.array([[1, 2, 3],[8,5.5,6.7],[2.1,0,10]])
-print(x)
-x[np.where(x-np.array(x, dtype=np.uint8)>0.1 )] = 0
-print(x)
+import pyqtgraph.examples
+pyqtgraph.examples.run()

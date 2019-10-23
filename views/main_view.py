@@ -64,7 +64,7 @@ class MainView(QMainWindow):
         self._ui.segmentationClassList.doubleClicked.connect(self.seg_class_data_change_request)
 
         # Turns off default pyqtgraph visualization settings
-        self._ui.graphicsView.ui.histogram.hide()
+        #self._ui.graphicsView.ui.histogram.hide()
         self._ui.graphicsView.ui.roiBtn.hide()
         self._ui.graphicsView.ui.menuBtn.hide()
 
@@ -91,7 +91,7 @@ class MainView(QMainWindow):
         self._seg_class_model.class_table_update.connect(self._filter_table_model.class_list_changed)
         self._filter_controller.filters_changed.connect(self.filter_objects_from_seg_image)
         self._ui.ROIListView.currentRowChanged.connect(self.roi_selected)
-         
+        self._ui.SaveAsFilterResultsButton.clicked.connect(self.save_as_filtered_results_button_clicked) 
 
         self._current_image_index = -1
 
@@ -204,10 +204,10 @@ class MainView(QMainWindow):
         self.cluster_image.setImage(self._model.cluster_image, opacity=self.cluster_opacity)
 
         results_index = self._filter_table_model.query_results
-
-        if results_index is not None:
+    
+        try:
             results = results_index['object_id'].values
-        else:
+        except TypeError:
             results = self.all_models.object_data['object_id'].values
             
         self.all_models.filter_results = results_index
@@ -221,9 +221,10 @@ class MainView(QMainWindow):
             defaulty = self._model.segmentation_image.shape[1]/2
             w = np.floor(np.min([self._model.segmentation_image.shape[0]/10, self._model.segmentation_image.shape[1]/10]))
             roi = pg.PolyLineROI([[defaulty-w,defaultx-w], [defaulty-w,defaultx+w], [defaulty+w,defaultx+w], [defaulty+w,defaultx-w]], closed=True, movable=True)
-            
+            roi.sigRegionChanged.connect(self.update_roi_list)
+
             label = "ROI_" + str(len(self.all_models.rois.keys()) + 1)
-            self.all_models.rois[label] = roi
+            self.all_models.rois[label] = [roi, self.map_roi_to_image(roi)]
 
             self._ui.ROIListView.addItem(label)
 
@@ -238,24 +239,29 @@ class MainView(QMainWindow):
             for row in range(self._ui.ROIListView.count()):
                 if row == self._ui.ROIListView.currentRow():
                     label =self._ui.ROIListView.currentItem().text()
-                    self.all_models.rois[label].setMouseHover(True)
-                    self.all_models.rois[label].sigHoverEvent.emit(self.all_models.rois[label])
+                    self.all_models.rois[label][0].setMouseHover(True)
+                    self.all_models.rois[label][0].sigHoverEvent.emit(self.all_models.rois[label][0])
                 else:
                     label =self._ui.ROIListView.item(row).text()
-                    self.all_models.rois[label].setMouseHover(False)
-                    self.all_models.rois[label].sigHoverEvent.emit(self.all_models.rois[label])
+                    self.all_models.rois[label][0].setMouseHover(False)
+                    self.all_models.rois[label][0].sigHoverEvent.emit(self.all_models.rois[label][0])
                 
 
     def delete_roi(self):
 
         label = str(self._ui.ROIListView.takeItem(self._ui.ROIListView.currentRow()).text())
-        self._ui.graphicsView.view.removeItem(self.all_models.rois[label])
-        del self.all_models.rois[label]
+        self._ui.graphicsView.view.removeItem(self.all_models.rois[label][0])
         
+        del self.all_models.rois[label][0]
+    
+    def map_roi_to_image(self, roi):
+        pts = roi.getSceneHandlePositions()
+        return [[roi.mapSceneToParent(pt[1]).x(), roi.mapSceneToParent(pt[1]).y()] for pt in pts]
 
     def update_roi_list(self):
-        return
-        #self.ROIListView.setModel(self.all_models.roi_model)
+        
+        for key in self.all_models.rois.keys():
+            self.all_models.rois[key][1] = self.map_roi_to_image(self.all_models.rois[key][0])
 
     def cluster_button_press(self):
 
@@ -265,7 +271,9 @@ class MainView(QMainWindow):
             try:
                 min_dist = float( self._ui.ClusterMinDist.text() )
                 min_neighbors = int(self._ui.ClusterMinNeighbors.text() )
-                self._main_controller.cluster_objects(self.all_models.filter_results, min_dist, min_neighbors)
+                
+                self.all_models.filter_results = self._main_controller.cluster_objects(self.all_models.filter_results, min_dist, min_neighbors)
+                
             except ValueError: print ( "Enter parameters for clustering")
         
         self.segmentation_opacity = 0.0
@@ -276,7 +284,9 @@ class MainView(QMainWindow):
 
     def toggle_cluster_clicked(self):
 
-        
         self.cluster_opacity = 1 - self.cluster_opacity
         self.cluster_image.setImage(self._model.cluster_image, opacity=self.cluster_opacity)
     
+    def save_as_filtered_results_button_clicked(self):
+        
+        filepath = self._main_controller.select_path_to_save_filter_results(self._filter_table_model.query_results)

@@ -67,7 +67,11 @@ class ImageDisplayController(QWidget):
             
             # initializes the color table and segmentation mask view with default colors
             for c,i in enumerate(self.classes):
-                color_table[c] = ColorLUT(c, "Class "+ str(c), None, QBrush(QColor(*DEFAULT_COLORS[i])) )
+                if i == 0:
+                    name = "Background"
+                else:
+                    name = "Class " + str(c)
+                color_table[c] = ColorLUT(c, name, None, QBrush(QColor(*DEFAULT_COLORS[i])) )
             self._seg_class_model.populate_class_table(color_table)
 
             # rescales segmentation image and saves object pixel locations for fast color updates
@@ -84,8 +88,7 @@ class ImageDisplayController(QWidget):
         """ Saves all of the pixel locations in the segmentation image for each class in
             the segmentation class model
         """
-        #image = np.round(image, decimals=0)
-        image[ np.where(image - np.array(image, dtype=np.uint8) > 0.01) ] = 0
+        #image[ np.where(image - np.array(image, dtype=np.uint8) > 0.01) ] = 0
         image = np.round(image, decimals=0)
 
         values = np.unique(image)
@@ -116,7 +119,7 @@ class ImageDisplayController(QWidget):
         """ Rescales image given decimal scale"""
         if len(image.shape) > 3:
             image = image[0, 0, :, :, :]
-        return rescale(image, scale, anti_aliasing=False, preserve_range=True)
+        return rescale(image, scale, anti_aliasing=False, preserve_range=True, order=0)
     
     def change_class_color(self, row):
         """ Gets new color from user for segmentation class using a color wheel"""
@@ -156,6 +159,16 @@ class ImageDisplayController(QWidget):
         # if user cancelled loading dialog, skip indexing objects in main_view
         return (False, -1)
 
+    def select_path_to_save_filter_results(self, data):
+
+        """ Opens a file dialog to select path for saving object filter results """
+
+        FileDialog = QFileDialog()
+        filter_results_file_location = FileDialog.getSaveFileName(self, "Select path to save filter results","CSV Files (*.csv)")
+        
+        if not (filter_results_file_location[0] == ''):
+            data.to_csv(filter_results_file_location[0])
+        
     def update_models_from_analysis_file(self):
 
         """ Updates the segmentation class model with the class labels provided in analysis output file """
@@ -191,6 +204,7 @@ class ImageDisplayController(QWidget):
         x2 = dataframe['Center of the object_0']
 
         db = DBSCAN(eps=min_dist, min_samples=min_neighbors).fit( np.transpose( np.vstack((x1, x2)) ) )
+        
         self._main_model.cluster_labels = db.labels_
         
         lbl = [l for l in np.unique(self._main_model.cluster_labels) if l != -1]
@@ -198,6 +212,14 @@ class ImageDisplayController(QWidget):
             self._main_model.cluster_ids.append( dataframe.iloc[np.where(db.labels_ == l)[0]]["object_id"].values )
         
         self.initialize_cluster_image()
+        
+        dataframe['cluster_id'] = db.labels_
+        #print(np.unique(dataframe['cluster_id']))
+        return dataframe
+
+    def calculate_cluster_statistics(self, dataframe):
+
+        return dataframe
 
     def initialize_cluster_image(self):
 
@@ -206,6 +228,7 @@ class ImageDisplayController(QWidget):
         for ob in self._main_model.filter_results['object_id'].values:
 
             index = self._main_model.segmentation_index.index[ob]
+            # Initialize all objects as gray (to indicate no membership to a cluster)
             new_image[index[0], index[1],:] = (220,220,220)
 
         self.color_cluster_image(new_image)
@@ -214,7 +237,7 @@ class ImageDisplayController(QWidget):
 
         # skip black
         colors = DEFAULT_COLORS[1:]
-
+        
         for cluster in self._main_model.cluster_ids:
             select_color = np.random.randint(len(DEFAULT_COLORS))
             for ob in cluster:

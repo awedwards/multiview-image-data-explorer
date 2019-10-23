@@ -117,15 +117,26 @@ class FilterController(QWidget):
             elif f == "=":
                 return df[operator.eq(df[c], v)]
         else:
+            
+            
+
             if c in self._main_model.rois.keys():
-                    
-                path = self.roi_to_path(self._main_model.rois[c])
+                
+                path = self.roi_to_path(self._main_model.rois[c][1])
+                
                 x = df['Center of the object_1'].values
                 y = df['Center of the object_0'].values
                 centers = np.transpose(np.vstack([x, y]))
+                print(centers)
                 contains_centers = path.contains_points(centers)
                 roi_class = True
-            
+                points = path.vertices
+                roi_area = self.calculate_roi_area( points[:,0], points[:,1])
+
+                with open("I:\\J_Vasquez\\training_images\\"+c+".txt","w+") as out_file:
+                    out_file.write(str(path))
+                    out_file.write(str(roi_area))
+                
             if (f == "INCLUDE") or (f == "="):
                 if roi_class:
                     return df.loc[contains_centers]
@@ -139,26 +150,49 @@ class FilterController(QWidget):
         return None
     
     def roi_to_path(self, roi):
-
-        return path.Path([x/self._image_model.image_scale for x in roi.getState()['points']])
-
+        print(roi)
+        print(path.Path([np.array(x)/self._image_model.image_scale for x in roi]))
+        return path.Path([np.array(x)/self._image_model.image_scale for x in roi])
+        
     def filter_manager_window_close(self):
         
         """ Lets the main view know that the filter manager window is closed """
         self.filters_changed.emit(1)
     
-    def combine_filters(self):
+    def combine_filters(self, class_queries, non_class_queries):
 
-        results = [self.query(df) for df in self._filter_table_model._data]
+        #results = [self.query(df) for df in self._filter_table_model._data]
         
+        class_query_results = self.outer_merge([self.query(df) for df in class_queries])
+        non_class_query_results = self.outer_merge([self.query(df) for df in non_class_queries])
+        
+        if class_query_results is None:
+            return non_class_query_results
+        if non_class_query_results is None:
+            return class_query_results
+
+        return self.inner_merge([class_query_results, non_class_query_results])
+
+    def outer_merge(self, results):
+        # OR
         if len(results) == 0:
             return None
         elif len(results) == 1:
             return results[0]
         else:
-            if self._filter_table_model.OR:
-                return reduce(lambda  left,right: pd.merge(left,right,
-                                                how='outer'), results)
-            else:
-                return reduce(lambda  left,right: pd.merge(left,right,
+            return reduce(lambda  left,right: pd.merge(left,right,
+                                            how='outer'), results)
+            
+    def inner_merge(self, results):
+        # AND
+        if len(results) == 0:
+            return None
+        elif len(results) == 1:
+            return results[0]
+        else:
+            return reduce(lambda  left,right: pd.merge(left,right,
                                                 how='inner'), results)
+
+    def calculate_roi_area(self, x, y):
+        # Uses shoe-lace formula to calculate the area of the ROI in pixels
+        return 0.5*np.abs(np.dot(x,np.roll(y,1))-np.dot(y,np.roll(x,1)))

@@ -7,18 +7,18 @@
     <x>0</x>
     <y>0</y>
     <width>836</width>
-    <height>533</height>
+    <height>365</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="addFilterButton">
+   <widget class="QPushButton" name="applyFilterButton">
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>440</y>
+      <y>320</y>
       <width>151</width>
       <height>23</height>
      </rect>
@@ -27,14 +27,14 @@
      <string notr="true">background-color: rgb(120, 201, 172);</string>
     </property>
     <property name="text">
-     <string>Add filter</string>
+     <string>Apply</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="removeFilterButton">
+   <widget class="QPushButton" name="resetFilterSettingsButton">
     <property name="geometry">
      <rect>
-      <x>610</x>
-      <y>440</y>
+      <x>70</x>
+      <y>290</y>
       <width>151</width>
       <height>23</height>
      </rect>
@@ -43,109 +43,14 @@
      <string notr="true">background-color: rgb(230, 165, 187);</string>
     </property>
     <property name="text">
-     <string>Remove filter</string>
+     <string>Reset to default</string>
     </property>
    </widget>
-   <widget class="QTableView" name="FilterManagerTableView">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>30</y>
-      <width>691</width>
-      <height>361</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 255, 255);</string>
-    </property>
-   </widget>
-   <widget class="QTextBrowser" name="checkResultTextBox">
-    <property name="geometry">
-     <rect>
-      <x>570</x>
-      <y>480</y>
-      <width>191</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">font: 7pt &quot;MS Shell Dlg 2&quot;;</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="objectClassList">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>480</y>
-      <width>151</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="filterLogicList">
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>480</y>
-      <width>101</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="filterValueInput">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>480</y>
-      <width>113</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>490</x>
-      <y>480</y>
-      <width>81</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Objects in filter</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="ANDRadioButton">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>400</y>
-      <width>82</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>AND</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="ORRadioButton">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>400</y>
-      <width>82</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>OR</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="totalObjectsLabel">
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>400</y>
+      <y>290</y>
       <width>131</width>
       <height>20</height>
      </rect>
@@ -158,7 +63,7 @@
     <property name="geometry">
      <rect>
       <x>570</x>
-      <y>400</y>
+      <y>290</y>
       <width>191</width>
       <height>21</height>
      </rect>
@@ -166,6 +71,39 @@
     <property name="styleSheet">
      <string notr="true">font: 7pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
+   </widget>
+   <widget class="QScrollArea" name="scrollArea">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>10</y>
+      <width>691</width>
+      <height>271</height>
+     </rect>
+    </property>
+    <property name="widgetResizable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="scrollAreaWidgetContents">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>689</width>
+       <height>269</height>
+      </rect>
+     </property>
+     <widget class="QTreeWidget" name="filterObjectsList">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>691</width>
+        <height>271</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
