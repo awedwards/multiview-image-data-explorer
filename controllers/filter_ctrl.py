@@ -117,8 +117,6 @@ class FilterController(QWidget):
             elif f == "=":
                 return df[operator.eq(df[c], v)]
         else:
-            
-            
 
             if c in self._main_model.rois.keys():
                 
@@ -127,15 +125,9 @@ class FilterController(QWidget):
                 x = df['Center of the object_1'].values
                 y = df['Center of the object_0'].values
                 centers = np.transpose(np.vstack([x, y]))
-                print(centers)
                 contains_centers = path.contains_points(centers)
                 roi_class = True
-                points = path.vertices
-                roi_area = self.calculate_roi_area( points[:,0], points[:,1])
-
-                with open("I:\\J_Vasquez\\training_images\\"+c+".txt","w+") as out_file:
-                    out_file.write(str(path))
-                    out_file.write(str(roi_area))
+                
                 
             if (f == "INCLUDE") or (f == "="):
                 if roi_class:
@@ -150,8 +142,6 @@ class FilterController(QWidget):
         return None
     
     def roi_to_path(self, roi):
-        print(roi)
-        print(path.Path([np.array(x)/self._image_model.image_scale for x in roi]))
         return path.Path([np.array(x)/self._image_model.image_scale for x in roi])
         
     def filter_manager_window_close(self):

@@ -13,7 +13,6 @@ import pyqtgraph as pg
 import numpy as np
 
 import os
-import scipy.ndimage.io as sio
 
 class ImageModel(QObject):
 

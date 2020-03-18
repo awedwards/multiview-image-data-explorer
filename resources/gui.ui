@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1054</width>
-    <height>993</height>
+    <width>1114</width>
+    <height>991</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>680</y>
+      <y>690</y>
       <width>111</width>
       <height>23</height>
      </rect>
@@ -63,7 +63,7 @@ background-color: rgb(120, 201, 172);</string>
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>No mask</string>
+     <string>&lt;No mask&gt;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="loadAnalysisFileButton">
@@ -95,15 +95,15 @@ background-color: rgb(120, 201, 172);</string>
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>No analysis file</string>
+     <string>&lt;No analysis file&gt;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="filterButton">
     <property name="geometry">
      <rect>
-      <x>830</x>
+      <x>820</x>
       <y>800</y>
-      <width>181</width>
+      <width>281</width>
       <height>31</height>
      </rect>
     </property>
@@ -117,7 +117,7 @@ background-color: rgb(120, 201, 172);</string>
    <widget class="QTableView" name="segmentationClassList">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>140</x>
       <y>660</y>
       <width>256</width>
       <height>271</height>
@@ -132,7 +132,7 @@ background-color: rgb(120, 201, 172);</string>
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>1011</width>
+      <width>1091</width>
       <height>641</height>
      </rect>
     </property>
@@ -145,7 +145,7 @@ background-color: rgb(120, 201, 172);</string>
      <rect>
       <x>820</x>
       <y>660</y>
-      <width>201</width>
+      <width>281</width>
       <height>131</height>
      </rect>
     </property>
@@ -279,9 +279,9 @@ background-color: rgb(120, 201, 172);</string>
    <widget class="QLineEdit" name="SavePathTextDisplay">
     <property name="geometry">
      <rect>
-      <x>830</x>
-      <y>850</y>
-      <width>181</width>
+      <x>940</x>
+      <y>840</y>
+      <width>161</width>
       <height>20</height>
      </rect>
     </property>
@@ -292,8 +292,8 @@ background-color: rgb(120, 201, 172);</string>
    <widget class="QPushButton" name="SaveFilteredResultsButton">
     <property name="geometry">
      <rect>
-      <x>830</x>
-      <y>910</y>
+      <x>820</x>
+      <y>870</y>
       <width>111</width>
       <height>21</height>
      </rect>
@@ -308,8 +308,8 @@ background-color: rgb(120, 201, 172);</string>
    <widget class="QPushButton" name="SaveAsFilterResultsButton">
     <property name="geometry">
      <rect>
-      <x>830</x>
-      <y>880</y>
+      <x>820</x>
+      <y>840</y>
       <width>111</width>
       <height>23</height>
      </rect>
@@ -321,14 +321,43 @@ background-color: rgb(120, 201, 172);</string>
      <string>Save as...</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="saveMaskButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>720</y>
+      <width>111</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(252, 205, 64);</string>
+    </property>
+    <property name="text">
+     <string>Save Mask</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="saveFilterMetadataCheckbox">
+    <property name="geometry">
+     <rect>
+      <x>820</x>
+      <y>900</y>
+      <width>151</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save filter metadata</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1054</width>
-     <height>21</height>
+     <width>1114</width>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

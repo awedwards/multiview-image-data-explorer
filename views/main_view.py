@@ -92,7 +92,8 @@ class MainView(QMainWindow):
         self._filter_controller.filters_changed.connect(self.filter_objects_from_seg_image)
         self._ui.ROIListView.currentRowChanged.connect(self.roi_selected)
         self._ui.SaveAsFilterResultsButton.clicked.connect(self.save_as_filtered_results_button_clicked) 
-
+        self._ui.saveMaskButton.clicked.connect(self.save_current_mask)
+        
         self._current_image_index = -1
 
     def launch_image_manager(self):
@@ -289,4 +290,9 @@ class MainView(QMainWindow):
     
     def save_as_filtered_results_button_clicked(self):
         
-        filepath = self._main_controller.select_path_to_save_filter_results(self._filter_table_model.query_results)
+        filepath = self._main_controller.select_path_to_save_filter_results(self._filter_table_model.query_results,
+            save_filter_metadata=self._ui.saveFilterMetadataCheckbox.isChecked())
+
+    def save_current_mask(self):
+
+        self._main_controller.save_current_mask()

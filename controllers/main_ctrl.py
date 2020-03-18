@@ -14,10 +14,13 @@ import pandas as pd
 import scipy.io as sio
 import os
 from matplotlib import pyplot as plt
+from matplotlib import path
 
 from skimage.transform import rescale
 from sklearn.cluster import DBSCAN
 from model.color_lookup_table import ColorLUT
+
+import pathlib
 
 DEFAULT_COLORS = [(0,0,0), (0,255,149), (230,0,103), (252,205,0), (0,116,241), (255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255)]
 
@@ -40,12 +43,20 @@ class ImageDisplayController(QWidget):
                 if "data" in k:
                     key=k
                     break
-            if (len(imagefile[key].shape) > 3): return np.squeeze(imagefile[key])
+            if (len(imagefile[key].shape) > 3):
+                image = np.squeeze(imagefile[key])
+                if image.shape[-1] == 2:
+                    new_im = np.zeros((image.shape[0], image.shape[1], 3))
+                    new_im[:,:,0] = image[:,:,0]
+                    new_im[:,:,1] = image[:,:,1]
+                    return new_im
+                else: return image
             else: return np.array(imagefile[key])
         except IOError:
             print("Can't read image")
-    
+
         return
+
 
     def update_models_from_file_table(self, data_row):
         
@@ -159,15 +170,36 @@ class ImageDisplayController(QWidget):
         # if user cancelled loading dialog, skip indexing objects in main_view
         return (False, -1)
 
-    def select_path_to_save_filter_results(self, data):
+    def select_path_to_save_filter_results(self, data, save_filter_metadata=False):
 
         """ Opens a file dialog to select path for saving object filter results """
 
         FileDialog = QFileDialog()
         filter_results_file_location = FileDialog.getSaveFileName(self, "Select path to save filter results","CSV Files (*.csv)")
         
+
         if not (filter_results_file_location[0] == ''):
             data.to_csv(filter_results_file_location[0])
+        
+        if save_filter_metadata:
+            for c in self._main_model.rois.keys():
+
+                filepath = pathlib.Path(filter_results_file_location[0])
+
+                path = self.roi_to_path(self._main_model.rois[c][1])
+                points = path.vertices
+                roi_area = self.calculate_roi_area( points[:,0], points[:,1])
+                
+                with open(pathlib.PurePath(filepath.parent, filepath.stem + "_metadata.txt"),"a") as f:
+                    
+                    f.write(str(c) + "\n")
+                    f.write("x, y\n")
+                    for i in np.arange(points.shape[0]):
+                        f.write(str(np.around(points[i,0],decimals=1)) + "," + str(np.around(points[i,1],decimals=1)) + "\n")
+                    f.write("\n")
+                    f.write("Area (pixel^2)\n")
+                    f.write(str(np.around(roi_area,decimals=1)) + "\n")
+
         
     def update_models_from_analysis_file(self):
 
@@ -197,6 +229,14 @@ class ImageDisplayController(QWidget):
         self._current_image_model.segmentation_data = self.image_rescale( image, self._current_image_model.image_scale)
         self.index_class_locations(self._current_image_model.segmentation_data[:,:,0])
         self._current_image_model.segmentation_image = self.create_seg_image(self._current_image_model.segmentation_data)
+
+    def save_current_mask(self):
+
+        FileDialog = QFileDialog()
+        mask_file_location = FileDialog.getSaveFileName(self, "Select path to save current mask","H5 Files (*.h5)")
+        
+        with h5py.File(mask_file_location[0], "w") as f:
+            dset = f.create_dataset("data", data=np.array(self._current_image_model.segmentation_image,dtype=np.uint8))       
 
     def cluster_objects(self, dataframe, min_dist, min_neighbors):
 
@@ -251,3 +291,11 @@ class ImageDisplayController(QWidget):
         """ Silly way to convert a string to bool """
         
         return str(s).lower() in ("yes", "true", "t", "1")
+
+
+    def calculate_roi_area(self, x, y):
+        # Uses shoe-lace formula to calculate the area of the ROI in pixels
+        return 0.5*np.abs(np.dot(x,np.roll(y,1))-np.dot(y,np.roll(x,1)))
+
+    def roi_to_path(self, roi):
+        return path.Path([np.array(x)/self._current_image_model.image_scale for x in roi])
