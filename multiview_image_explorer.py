@@ -5,7 +5,6 @@ Multiview Image Exlporer is a visualization and analysis tool to help
 make sense of multiple imaging views of the same biological tissue.
 
 """
-import click
 import sys
 
 from PyQt5.QtWidgets import QApplication, QMainWindow
