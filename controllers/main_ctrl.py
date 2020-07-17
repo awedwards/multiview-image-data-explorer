@@ -130,7 +130,7 @@ class ImageDisplayController(QWidget):
         """ Rescales image given decimal scale"""
         if len(image.shape) > 3:
             image = image[0, 0, :, :, :]
-        return rescale(image, scale, anti_aliasing=False, preserve_range=True, order=0)
+        return rescale(image, scale, anti_aliasing=False, preserve_range=True, multichannel=True, order=0)
     
     def change_class_color(self, row):
         """ Gets new color from user for segmentation class using a color wheel"""
