@@ -141,6 +141,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
+        self.menubar.setNativeMenuBar(False)
         self.toolBar.addSeparator()
 
         self.retranslateUi(MainWindow)
