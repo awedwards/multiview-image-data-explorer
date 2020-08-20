@@ -22,7 +22,6 @@ class ImageManagerView(QMainWindow):
 
         self._ui = Ui_ImageManagerMainWindow()
         self._ui.setupUi(self)
-
         self._ui.addImageButton.clicked.connect(self._main_controller.request_image_files)
         self._ui.removeImageButton.clicked.connect(self.remove_images)
 
@@ -33,6 +32,7 @@ class ImageManagerView(QMainWindow):
 
     def remove_images(self):
         """ Sends selected indexes to delete to file table model """
+        print("REMOVE")
         self._model.delete_row(self._ui.imageManagerTableView.selectedIndexes())
 
     def closeEvent(self, event):

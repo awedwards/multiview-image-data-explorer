@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sys
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -15,6 +16,7 @@ class Ui_MainWindow(object):
         MainWindow.setStyleSheet("background-color: rgb(245,245,245);")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
         self.imageFileNavigatorView = QtWidgets.QComboBox(self.centralwidget)
         self.imageFileNavigatorView.setGeometry(QtCore.QRect(410, 660, 181, 22))
         self.imageFileNavigatorView.setStyleSheet("background-color: rgb(255,255,255);")
@@ -24,6 +26,8 @@ class Ui_MainWindow(object):
         self.toggleSegmentationMaskButton.setStyleSheet("color: rgb(0, 0, 0);\n"
 "background-color: rgb(120, 201, 172);")
         self.toggleSegmentationMaskButton.setObjectName("toggleSegmentationMaskButton")
+        if sys.platform == 'darwin':
+            self.toggleSegmentationMaskButton.setStyleSheet("margin: 0px")
         self.segmentationMaskFileDisplay = QtWidgets.QLineEdit(self.centralwidget)
         self.segmentationMaskFileDisplay.setGeometry(QtCore.QRect(10, 660, 113, 20))
         self.segmentationMaskFileDisplay.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -32,6 +36,8 @@ class Ui_MainWindow(object):
         self.loadAnalysisFileButton.setGeometry(QtCore.QRect(410, 690, 111, 23))
         self.loadAnalysisFileButton.setStyleSheet("background-color: rgb(252, 205, 64);")
         self.loadAnalysisFileButton.setObjectName("loadAnalysisFileButton")
+        if sys.platform == 'darwin':
+            self.loadAnalysisFileButton.setStyleSheet("margin: 0px")
         self.analysisFileDisplay = QtWidgets.QLineEdit(self.centralwidget)
         self.analysisFileDisplay.setGeometry(QtCore.QRect(410, 720, 131, 20))
         self.analysisFileDisplay.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -40,6 +46,8 @@ class Ui_MainWindow(object):
         self.filterButton.setGeometry(QtCore.QRect(820, 800, 281, 31))
         self.filterButton.setStyleSheet("background-color: rgb(172, 199, 241);")
         self.filterButton.setObjectName("filterButton")
+        if sys.platform == 'darwin':
+            self.filterButton.setStyleSheet("margin: 0px")
         self.segmentationClassList = QtWidgets.QTableView(self.centralwidget)
         self.segmentationClassList.setGeometry(QtCore.QRect(140, 660, 256, 271))
         self.segmentationClassList.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -60,14 +68,20 @@ class Ui_MainWindow(object):
         self.AddRegionOfInterestButton.setGeometry(QtCore.QRect(600, 800, 101, 21))
         self.AddRegionOfInterestButton.setStyleSheet("background-color: rgb(120, 201, 172);")
         self.AddRegionOfInterestButton.setObjectName("AddRegionOfInterestButton")
+        if sys.platform == 'darwin':
+            self.AddRegionOfInterestButton.setStyleSheet("margin: 0px")
         self.RemoveRegionOfInterestButton = QtWidgets.QPushButton(self.centralwidget)
         self.RemoveRegionOfInterestButton.setGeometry(QtCore.QRect(710, 800, 91, 23))
         self.RemoveRegionOfInterestButton.setStyleSheet("background-color: rgb(230, 165, 187);")
         self.RemoveRegionOfInterestButton.setObjectName("RemoveRegionOfInterestButton")
+        if sys.platform == 'darwin':
+            self.RemoveRegionOfInterestButton.setStyleSheet("margin: 0px")
         self.clusterButton = QtWidgets.QPushButton(self.centralwidget)
         self.clusterButton.setGeometry(QtCore.QRect(410, 760, 75, 23))
         self.clusterButton.setStyleSheet("background-color: rgb(172, 199, 241);")
         self.clusterButton.setObjectName("clusterButton")
+        if sys.platform == 'darwin':
+            self.clusterButton.setStyleSheet("margin: 0px")
         self.ClusterMinDist = QtWidgets.QLineEdit(self.centralwidget)
         self.ClusterMinDist.setGeometry(QtCore.QRect(410, 810, 113, 20))
         self.ClusterMinDist.setObjectName("ClusterMinDist")
@@ -84,6 +98,8 @@ class Ui_MainWindow(object):
         self.ToggleClusterButton.setGeometry(QtCore.QRect(490, 760, 101, 23))
         self.ToggleClusterButton.setStyleSheet("background-color: rgb(172, 199, 241);")
         self.ToggleClusterButton.setObjectName("ToggleClusterButton")
+        if sys.platform == 'darwin':
+            self.ToggleClusterButton.setStyleSheet("margin: 0px")
         self.SavePathTextDisplay = QtWidgets.QLineEdit(self.centralwidget)
         self.SavePathTextDisplay.setGeometry(QtCore.QRect(940, 840, 161, 20))
         self.SavePathTextDisplay.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -96,10 +112,14 @@ class Ui_MainWindow(object):
         self.SaveAsFilterResultsButton.setGeometry(QtCore.QRect(820, 840, 111, 23))
         self.SaveAsFilterResultsButton.setStyleSheet("background-color: rgb(252, 205, 64);")
         self.SaveAsFilterResultsButton.setObjectName("SaveAsFilterResultsButton")
+        if sys.platform == 'darwin':
+            self.SaveAsFilterResultsButton.setStyleSheet("margin: 0px")
         self.saveMaskButton = QtWidgets.QPushButton(self.centralwidget)
         self.saveMaskButton.setGeometry(QtCore.QRect(10, 720, 111, 23))
         self.saveMaskButton.setStyleSheet("background-color: rgb(252, 205, 64);")
         self.saveMaskButton.setObjectName("saveMaskButton")
+        if sys.platform == 'darwin':
+            self.saveMaskButton.setStyleSheet("margin: 0px")
         self.saveFilterMetadataCheckbox = QtWidgets.QCheckBox(self.centralwidget)
         self.saveFilterMetadataCheckbox.setGeometry(QtCore.QRect(820, 900, 151, 21))
         self.saveFilterMetadataCheckbox.setObjectName("saveFilterMetadataCheckbox")

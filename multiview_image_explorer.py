@@ -20,6 +20,7 @@ from controllers.filter_ctrl import FilterController
 class App(QApplication):
     def __init__(self, argv):
         super(App, self).__init__(argv)
+        self.setStyle('Macintosh')
         self.model = Model()
         self.file_table_model = fileTableModel(data=[], header=["File path", "Has segmentation mask?", "Segmentation mask path", "Scale"])
         self.filter_table_model = filterTableModel(data=[], header=["Object", "Function", "Value"])
