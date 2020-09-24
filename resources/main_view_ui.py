@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from napari import Viewer
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -47,7 +47,7 @@ class Ui_MainWindow(object):
         self.segmentationClassList.setGeometry(QtCore.QRect(140, 660, 256, 271))
         self.segmentationClassList.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.segmentationClassList.setObjectName("segmentationClassList")
-        self.graphicsView = ImageView(self.centralwidget)
+        self.graphicsView = Viewer(self.centralwidget)
         self.graphicsView.setGeometry(QtCore.QRect(10, 10, 1091, 641))
         self.graphicsView.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.graphicsView.setObjectName("graphicsView")
@@ -178,4 +178,4 @@ class Ui_MainWindow(object):
         self.actionImage_Manager.setText(_translate("MainWindow", "Image Manager"))
         self.actionNew_Project.setText(_translate("MainWindow", "New Project"))
         self.actionNight_mode.setText(_translate("MainWindow", "Toggle night mode"))
-from pyqtgraph import ImageView
+#from pyqtgraph import ImageView

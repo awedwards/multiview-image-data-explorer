@@ -62,7 +62,7 @@ class ImageDisplayController(QWidget):
         
         """ Updates image models after segmentation data is read."""
 
-        self._current_image_model.image = self.image_rescale( self.read_image(data_row[0]), float(data_row[3]))
+        self._current_image_model.image = self.squeeze_image( self.read_image(data_row[0]))
         
         if self.str2bool(data_row[1]):
 
@@ -87,7 +87,7 @@ class ImageDisplayController(QWidget):
 
             # rescales segmentation image and saves object pixel locations for fast color updates
             self._current_image_model.segmentation_data = self._current_image_model.segmentation_data.astype(np.float64)
-            self._current_image_model.segmentation_data = self.image_rescale( self._current_image_model.segmentation_data, float(data_row[3]))
+            self._current_image_model.segmentation_data = self.squeeze_image( self._current_image_model.segmentation_data)
             self.index_class_locations(self._current_image_model.segmentation_data)
             
             # creates an RGB segmentation image with default colors
@@ -126,12 +126,14 @@ class ImageDisplayController(QWidget):
 
         return new_image
 
-    def image_rescale(self, image, scale):
-        """ Rescales image given decimal scale"""
+    def squeeze_image(self, image):
+        """ Removes singleton (time and z-stack axes )"""
         if len(image.shape) > 3:
             image = image[0, 0, :, :, :]
-        return rescale(image, scale, anti_aliasing=False, preserve_range=True, multichannel=True, order=0)
-    
+        #if scale < 1:
+        #    return rescale(image, scale, anti_aliasing=False, preserve_range=True, multichannel=True, order=0)
+        #else:
+        return image
     def change_class_color(self, row):
         """ Gets new color from user for segmentation class using a color wheel"""
         color = QColorDialog.getColor()
@@ -226,7 +228,7 @@ class ImageDisplayController(QWidget):
             image[idx[0], idx[1],:] = k
 
         #update class locations
-        self._current_image_model.segmentation_data = self.image_rescale( image, self._current_image_model.image_scale)
+        self._current_image_model.segmentation_data = self.squeeze_image( image )
         self.index_class_locations(self._current_image_model.segmentation_data[:,:,0])
         self._current_image_model.segmentation_image = self.create_seg_image(self._current_image_model.segmentation_data)
 
@@ -284,7 +286,7 @@ class ImageDisplayController(QWidget):
                 index = self._main_model.segmentation_index.index[ob]
                 image[index[0], index[1],:] = DEFAULT_COLORS[select_color]
         
-        self._current_image_model.cluster_image = self.image_rescale(image, self._current_image_model.image_scale)
+        self._current_image_model.cluster_image = self.squeeze_image(image)
 
     def str2bool(self, s):
 

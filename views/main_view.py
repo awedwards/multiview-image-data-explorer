@@ -141,7 +141,7 @@ class MainView(QMainWindow):
             self.all_models.current_id = self._file_table_model._filelist[self._ui.imageFileNavigatorView.currentIndex()]
             self._current_image_index = self._ui.imageFileNavigatorView.currentIndex()
             self._main_controller.update_models_from_file_table(self._file_table_model._data[self._current_image_index])
-            self._model.image_scale = float(self._file_table_model._data[self._current_image_index][3])
+            #self._model.image_scale = float(self._file_table_model._data[self._current_image_index][3])
             self._ui.segmentationMaskFileDisplay.setText(self._model.segmentation_label)
         
     @pyqtSlot(int)

@@ -142,7 +142,8 @@ class FilterController(QWidget):
         return None
     
     def roi_to_path(self, roi):
-        return path.Path([np.array(x)/self._image_model.image_scale for x in roi])
+        return path.Path([np.array(x) for x in roi])
+        #return path.Path([np.array(x)/self._image_model.image_scale for x in roi])
         
     def filter_manager_window_close(self):
         

@@ -29,7 +29,7 @@ class ImageModel(QObject):
         self.cluster_image = self.segmentation_data.copy()
         self.segmentation_classes = []
         self.mask_on = False
-        self.image_scale = 1.0
+        #self.image_scale = 1.0
         
     image_changed = pyqtSignal(int)
     segmentation_image_changed = pyqtSignal(int)

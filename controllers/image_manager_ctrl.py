@@ -24,7 +24,7 @@ class ImageManagerController(QWidget):
     def request_image_files(self):
         ''' User dialog to add new images to the ImageManager table '''
         print("ADD")
-        items = ["", "False", "", 1]
+        items = ["", "False", ""]
         item_check = False
         # HDF5 Only for now
         fname = self.createH5FileDialog()[0]
@@ -50,7 +50,7 @@ class ImageManagerController(QWidget):
                     items[2] = maskfname
                 else: item_check = False
 
-            items[3] = self.getScale()
+           # items[3] = self.getScale()
 
         if item_check:
             self._model.add_row(items)
@@ -67,9 +67,10 @@ class ImageManagerController(QWidget):
         self.image_manager_window_closed.emit(self._model._filelist)
         self.change_current_image.emit(1)
     
-    def getScale(self):
+    #def getScale(self):
         """ Asks user for rescale factor """
-        i, okPressed = QInputDialog.getDouble(self, "Enter factor for image rescale (1 if no change)","Scale:", 1, 0.01, 1, 2)
-        if okPressed:
-            return i
-        else: return 1
+   
+        #i, okPressed = QInputDialog.getDouble(self, "Enter factor for image rescale (1 if no change)","Scale:", 1, 0.01, 1, 2)
+        #if okPressed:
+        #    return i
+        #else: return 1
