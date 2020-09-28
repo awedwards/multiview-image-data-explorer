@@ -300,4 +300,4 @@ class ImageDisplayController(QWidget):
         return 0.5*np.abs(np.dot(x,np.roll(y,1))-np.dot(y,np.roll(x,1)))
 
     def roi_to_path(self, roi):
-        return path.Path([np.array(x)/self._current_image_model.image_scale for x in roi])
+        return path.Path([np.array(x) for x in roi])
