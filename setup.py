@@ -4,7 +4,7 @@ setup(
         name="mide",
         version="0.1",
         packages=find_packages(),
-        install_requires=['dask==2.14.0',
+        install_requires=['dask==2021.10.0',
             'dask-image==0.2.0',
             'h5py==2.10.0',
             'imageio==2.8.0',
