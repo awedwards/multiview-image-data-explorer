@@ -20,7 +20,7 @@ setup(
             'numpydoc==0.9.2',
             'pandas==0.24.2',
             'pickleshare==0.7.5',
-            'Pillow==7.0.0',
+            'Pillow==9.0.0',
             'pyqtgraph==0.10.0',
             'qtconsole==4.7.1',
             'QtPy==1.9.0',
