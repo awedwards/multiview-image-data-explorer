@@ -10,7 +10,7 @@ setup(
             'imageio==2.8.0',
             'imagesize==1.2.0',
             'ipykernel==5.1.4',
-            'ipython==7.13.0',
+            'ipython==7.16.3',
             'ipython-genutils==0.2.0',
             'jupyter-client==5.3.4',
             'jupyter-core==4.6.3',
