@@ -16,7 +16,7 @@ setup(
             'jupyter-core==4.6.3',
             'matplotlib==3.1.3',
             'napari==0.2.12',
-            'numpy==1.16.2',
+            'numpy==1.22.0',
             'numpydoc==0.9.2',
             'pandas==0.24.2',
             'pickleshare==0.7.5',
